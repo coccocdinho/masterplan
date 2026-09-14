@@ -6,10 +6,13 @@ import { NextResponse } from "next/server";
 const COOKIE_NAME = "mp_session";
 
 export function middleware(req) {
-  const hasCookie = !!req.cookies.get(COOKIE_NAME)?.value;
   const { pathname } = req.nextUrl;
-  const isPublic = pathname.startsWith("/login") || pathname.startsWith("/api/auth/login");
+  // API routes return their own 401 JSON via requireSession() — never redirect them,
+  // a fetch() call following an HTML redirect is not something client code can handle.
+  if (pathname.startsWith("/api/")) return NextResponse.next();
 
+  const hasCookie = !!req.cookies.get(COOKIE_NAME)?.value;
+  const isPublic = pathname.startsWith("/login");
   if (!hasCookie && !isPublic && pathname !== "/") {
     return NextResponse.redirect(new URL("/login", req.url));
   }
