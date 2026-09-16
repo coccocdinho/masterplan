@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { AlertTriangle, Clock, CalendarClock, ChevronRight } from "lucide-react";
+import { AlertTriangle, Clock, CalendarClock, CircleHelp, ChevronRight } from "lucide-react";
 import { hasC, urg, ddiff, fmtD, rowSt } from "../lib/util";
 import KPI from "./KPI";
 import PB from "./PB";
@@ -8,15 +8,17 @@ import UB from "./UB";
 
 export default function Urgent({ D }) {
   const router = useRouter();
-  const ts = D.tasks.filter((t) => hasC(t) && ["over", "today", "soon"].includes(urg(t))).sort((a, b) => ddiff(a.dl) - ddiff(b.dl));
+  const ts = D.tasks.filter((t) => hasC(t) && ["over", "today", "soon", "none"].includes(urg(t)))
+    .sort((a, b) => { const da = ddiff(a.dl), db = ddiff(b.dl); if (da === null) return db === null ? 0 : 1; if (db === null) return -1; return da - db; });
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 sm:px-8">
       <h1 className="text-xl font-bold text-slate-900">Cần đôn đốc hôm nay</h1>
-      <p className="mt-0.5 text-sm text-slate-500">Quá hạn, đến hạn hôm nay, hoặc còn ≤3 ngày.</p>
-      <div className="mt-5 grid grid-cols-3 gap-3">
+      <p className="mt-0.5 text-sm text-slate-500">Quá hạn, đến hạn hôm nay, còn ≤3 ngày, hoặc chưa có deadline.</p>
+      <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <KPI Ic={AlertTriangle} label="Quá hạn" val={ts.filter(t=>urg(t)==="over").length} tone="ro"/>
         <KPI Ic={Clock} label="Đến hạn hôm nay" val={ts.filter(t=>urg(t)==="today").length} tone="or"/>
         <KPI Ic={CalendarClock} label="Sắp đến hạn (≤3 ngày)" val={ts.filter(t=>urg(t)==="soon").length} tone="am"/>
+        <KPI Ic={CircleHelp} label="Chưa có deadline" val={ts.filter(t=>urg(t)==="none").length}/>
       </div>
       <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         {!ts.length ? <div className="px-5 py-12 text-center text-sm text-slate-400">Không có việc cần đôn đốc.</div> : (
@@ -38,7 +40,7 @@ export default function Urgent({ D }) {
                   <td className="px-4 py-3.5"><PB ps={D.projects} pid={t.pid}/></td>
                   <td className="px-4 py-3.5"><div className="font-medium text-slate-800">{t.dv || <span className="text-slate-400">—</span>}</div></td>
                   <td className="px-4 py-3.5 text-slate-600">{t.acc || "—"}</td>
-                  <td className="px-4 py-3.5 tabular-nums text-slate-600">{fmtD(t.dl)}</td>
+                  <td className="px-4 py-3.5 tabular-nums text-slate-600">{t.dl ? fmtD(t.dl) : <span className="text-slate-400">Chưa có hạn</span>}</td>
                   <td className="px-4 py-3.5"><UB t={t}/></td>
                   <td className="px-4 py-3.5 text-slate-300"><ChevronRight size={16}/></td>
                 </tr>

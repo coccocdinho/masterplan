@@ -3,9 +3,9 @@ import { Circle, Clock, CheckCircle2 } from "lucide-react";
 import { ST, STO } from "../lib/constants";
 
 const SM = {
-  [ST.N]: { Ic: Circle, bg: "bg-slate-100", tx: "text-slate-600", rg: "ring-slate-200" },
-  [ST.I]: { Ic: Clock, bg: "bg-blue-50", tx: "text-blue-700", rg: "ring-blue-200" },
-  [ST.D]: { Ic: CheckCircle2, bg: "bg-emerald-50", tx: "text-emerald-700", rg: "ring-emerald-200" },
+  [ST.N]: { Ic: Circle, bg: "bg-slate-200", tx: "text-slate-700", rg: "ring-slate-300" },
+  [ST.I]: { Ic: Clock, bg: "bg-blue-100", tx: "text-blue-800", rg: "ring-blue-300" },
+  [ST.D]: { Ic: CheckCircle2, bg: "bg-slate-50", tx: "text-slate-400", rg: "ring-slate-200" },
 };
 
 export default function SP({ val, onChange }) {
