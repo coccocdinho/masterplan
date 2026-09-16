@@ -32,7 +32,7 @@ export default function SubRow({ t, s, onUpdSub, onDelSub }) {
       <td className="px-2 py-1"><SP val={s.st||ST.N} onChange={v=>onUpdSub(t.id,s.id,{st:v})}/></td>
       <td className="px-2 py-1">{(s.text||"").trim()?<UB t={s}/>:<span className="text-slate-300">—</span>}</td>
       <td className="px-2 py-1"><input value={s.gc||""} onChange={e=>onUpdSub(t.id,s.id,{gc:e.target.value})} placeholder="—" className={`w-full rounded border border-transparent bg-transparent px-1 py-0.5 text-xs hover:border-slate-200 focus:border-indigo-400 focus:bg-white focus:outline-none ${sdn?"text-slate-400":"text-slate-600"}`}/></td>
-      <td className="px-1.5 py-1"><button onClick={()=>onDelSub(t.id,s.id)} className="text-slate-300 hover:text-rose-500"><X size={12}/></button></td>
+      <td className="px-1.5 py-1"><button onClick={()=>onDelSub(t.id,s.id)} title="Xoá việc con" className="rounded p-0.5 text-slate-300 hover:bg-rose-50 hover:text-rose-500"><X size={13}/></button></td>
     </tr>
   );
 }

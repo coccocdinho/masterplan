@@ -41,6 +41,18 @@ function ProjectPageInner() {
     });
   }
 
+  function reqDelSub(tid, subId) {
+    const t = D.tasks.find((x) => x.id === tid);
+    const s = t?.subtasks?.find((x) => x.id === subId);
+    const nm = s?.text || "(chưa có tên)";
+    setDlg({
+      title: "Xoá việc con?",
+      msg: `Xoá việc con "${nm}"${t?.dv ? ` trong đầu việc "${t.dv}"` : ""}? Không thể hoàn tác.`,
+      okLabel: "Xoá việc con",
+      onOk: () => { delSubtask(tid, subId); setDlg(null); },
+    });
+  }
+
   function reqDelProj(projId) {
     const p = D.projects.find((x) => x.id === projId);
     if (!p) return;
@@ -57,7 +69,7 @@ function ProjectPageInner() {
     <>
       <Detail
         proj={proj} tasks={tasks} users={D.users} myRole={me.role} myId={me.id} hlId={hlId}
-        onAdd={addTask} onUpd={updTask} onAddSub={addSubtask} onUpdSub={updSubtask} onDelSub={delSubtask}
+        onAdd={addTask} onUpd={updTask} onAddSub={addSubtask} onUpdSub={updSubtask} onDelSub={reqDelSub}
         onDelT={reqDelTask} onDelP={reqDelProj} onSetOwner={setProjOwner} onSetDeadline={setProjDeadline}
       />
       <Dlg open={!!dlg} title={dlg?.title} msg={dlg?.msg} okLabel={dlg?.okLabel} onOk={dlg?.onOk} onNo={() => setDlg(null)}/>
