@@ -105,8 +105,8 @@ export default function Detail({ proj, tasks, users, myRole, myId, onDelT, onAdd
       </div>
 
       <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <table className="w-full min-w-[1100px] text-xs">
-          <colgroup><col className="w-10"/><col className="w-24"/><col/><col className="w-24"/><col className="w-24"/><col className="w-28"/><col className="w-36"/><col className="w-36"/><col className="w-8"/></colgroup>
+        <table className="w-full table-fixed text-xs">
+          <colgroup><col className="w-6"/><col className="w-16"/><col/><col className="w-24"/><col className="w-16"/><col className="w-28"/><col className="w-32"/><col className="w-24"/><col className="w-10"/></colgroup>
           <thead><tr className="border-b-2 border-indigo-200 bg-indigo-50/70 text-left text-[11px] uppercase tracking-wide text-indigo-900">
             <th className="px-2 py-1.5 font-medium">#</th>
             <Th label="Hạng mục" k="hm" sortKey={sortKey} sortDir={sortDir} onSort={toggleSort}/>

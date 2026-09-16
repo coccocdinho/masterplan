@@ -13,7 +13,7 @@ const pcol = (ps, pid) => { const i = ps.findIndex((p) => p.id === pid); return 
 export default function PB({ ps, pid }) {
   const c = pcol(ps, pid), p = ps.find((x) => x.id === pid);
   return (
-    <span className={`inline-block max-w-[180px] truncate rounded-md px-2 py-1 text-xs font-semibold ring-1 ring-inset ${c.bg} ${c.tx} ${c.rg}`}>
+    <span className={`inline-block rounded-md px-2 py-1 text-xs font-semibold leading-snug ring-1 ring-inset ${c.bg} ${c.tx} ${c.rg}`}>
       {p ? p.name : "—"}
     </span>
   );
