@@ -1,14 +1,14 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { AlertTriangle, Clock, CalendarClock, CircleHelp, ChevronRight } from "lucide-react";
-import { hasC, urg, ddiff, fmtD, rowSt } from "../lib/util";
+import { hasC, urg, ddiff, fmtD, rowSt, scopedTasks } from "../lib/util";
 import KPI from "./KPI";
 import PB from "./PB";
 import UB from "./UB";
 
-export default function Urgent({ D }) {
+export default function Urgent({ D, me }) {
   const router = useRouter();
-  const ts = D.tasks.filter((t) => hasC(t) && ["over", "today", "soon", "none"].includes(urg(t)))
+  const ts = scopedTasks(D, me).filter((t) => hasC(t) && ["over", "today", "soon", "none"].includes(urg(t)))
     .sort((a, b) => { const da = ddiff(a.dl), db = ddiff(b.dl); if (da === null) return db === null ? 0 : 1; if (db === null) return -1; return da - db; });
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 sm:px-8">

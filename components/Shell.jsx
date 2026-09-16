@@ -1,6 +1,6 @@
 "use client";
 import { AppStateProvider, useApp } from "../lib/AppStateContext";
-import { hasC, urg } from "../lib/util";
+import { hasC, urg, scopedTasks } from "../lib/util";
 import Side from "./Side";
 import NP from "./NP";
 import IM from "./IM";
@@ -13,7 +13,7 @@ function ShellInner({ children }) {
     return <div className="flex min-h-screen items-center justify-center text-sm text-slate-400">Đang tải…</div>;
   }
 
-  const urgCnt = D.tasks.filter((t) => hasC(t) && ["over", "today", "soon", "none"].includes(urg(t))).length;
+  const urgCnt = scopedTasks(D, me).filter((t) => hasC(t) && ["over", "today", "soon", "none"].includes(urg(t))).length;
 
   return (
     <div className="flex min-h-screen bg-slate-50 font-sans text-slate-800">
