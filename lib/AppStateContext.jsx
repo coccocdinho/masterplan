@@ -114,6 +114,15 @@ export function AppStateProvider({ me, children }) {
       throw e;
     }
   }
+  async function setProjName(projId, name) {
+    setD((d) => ({ ...d, projects: d.projects.map((p) => (p.id === projId ? { ...p, name } : p)) }));
+    try {
+      await apiPatch(`/api/projects/${projId}`, { name });
+    } catch (e) {
+      reload();
+      throw e;
+    }
+  }
   async function delProj(projId) {
     const proj = D.projects.find((p) => p.id === projId);
     const taskCount = D.tasks.filter((t) => t.pid === projId).length;
@@ -191,7 +200,7 @@ export function AppStateProvider({ me, children }) {
   const value = {
     D, me, loading, err, reload, logout,
     addUser, resetPw, delUser, changePw,
-    createProj, importProjs, setProjOwner, setProjDeadline, delProj,
+    createProj, importProjs, setProjOwner, setProjDeadline, setProjName, delProj,
     addTask, updTask, delTask,
     addSubtask, updSubtask, delSubtask,
     showNP, setShowNP, showIM, setShowIM, showCP, setShowCP,

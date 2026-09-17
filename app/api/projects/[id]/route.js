@@ -18,6 +18,10 @@ export async function PATCH(req, { params }) {
     patch.owner_id = body.owner || null;
   }
   if ("dl" in body) patch.dl = body.dl || null;
+  if ("name" in body) {
+    if (!body.name || !body.name.trim()) return fail("Tên dự án không được để trống.");
+    patch.name = body.name.trim();
+  }
   if (!Object.keys(patch).length) return fail("Không có thay đổi.");
 
   const { data, error } = await db().from("projects").update(patch).eq("id", id).select().single();

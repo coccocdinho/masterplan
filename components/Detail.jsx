@@ -9,12 +9,21 @@ import Th from "./Th";
 import TaskRow from "./TaskRow";
 import StaffChart from "./StaffChart";
 
-export default function Detail({ proj, tasks, users, myRole, myId, onDelT, onAdd, onUpd, onAddSub, onUpdSub, onDelSub, onDelP, onSetOwner, onSetDeadline, hlId }) {
+export default function Detail({ proj, tasks, users, myRole, myId, onDelT, onAdd, onUpd, onAddSub, onUpdSub, onDelSub, onDelP, onSetOwner, onSetDeadline, onSetName, hlId }) {
   const router = useRouter();
   const rr = useRef({});
   const [fl, sfl] = useState(null);
   const [hmF, setHmF] = useState(""), [accF, setAccF] = useState(""), [stF, setStF] = useState(""), [dlFrom, setDlFrom] = useState(""), [dlTo, setDlTo] = useState("");
   const [sortKey, setSortKey] = useState("urg"), [sortDir, setSortDir] = useState("asc");
+  const [nameDraft, setNameDraft] = useState(proj.name);
+
+  useEffect(() => { setNameDraft(proj.name); }, [proj.id, proj.name]);
+
+  function commitName() {
+    const trimmed = nameDraft.trim();
+    if (trimmed && trimmed !== proj.name) onSetName(proj.id, trimmed);
+    else setNameDraft(proj.name);
+  }
 
   function toggleSort(k) {
     if (sortKey === k) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -51,7 +60,13 @@ export default function Detail({ proj, tasks, users, myRole, myId, onDelT, onAdd
       <button onClick={() => router.push("/overview")} className="mb-4 flex items-center gap-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-800"><ArrowLeft size={15}/> Tổng quan</button>
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900">{proj.name}</h1>
+          <input
+            value={nameDraft}
+            onChange={e=>setNameDraft(e.target.value)}
+            onBlur={commitName}
+            onKeyDown={e=>{ if (e.key==="Enter") e.currentTarget.blur(); if (e.key==="Escape") { setNameDraft(proj.name); e.currentTarget.blur(); } }}
+            className="-mx-1 w-full rounded border border-transparent bg-transparent px-1 text-xl font-bold text-slate-900 hover:border-slate-200 focus:border-indigo-400 focus:bg-white focus:outline-none"
+          />
           <div className="mt-1 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm text-slate-500">
             <span className="flex items-center gap-1.5">Người phụ trách:
               {canAssignOwner(myRole) ? (
@@ -107,7 +122,7 @@ export default function Detail({ proj, tasks, users, myRole, myId, onDelT, onAdd
       <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
         <table className="w-full table-fixed text-xs">
           <colgroup><col className="w-6"/><col className="w-14"/><col/><col className="w-32"/><col className="w-24"/><col className="w-28"/><col className="w-32"/><col className="w-20"/><col className="w-10"/></colgroup>
-          <thead><tr className="border-b-2 border-indigo-200 bg-indigo-50/70 text-left text-[11px] uppercase tracking-wide text-indigo-900">
+          <thead><tr className="border-b-2 border-indigo-200 bg-indigo-100/70 text-left text-[11px] uppercase tracking-wide text-indigo-800">
             <th className="px-2 py-1.5 font-medium">#</th>
             <Th label="Hạng mục" k="hm" sortKey={sortKey} sortDir={sortDir} onSort={toggleSort}/>
             <Th label="Đầu việc / Việc con" k="dv" sortKey={sortKey} sortDir={sortDir} onSort={toggleSort}/>

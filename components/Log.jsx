@@ -28,7 +28,7 @@ export default function Log({ D, myRole }) {
       <div className="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         {!fd.length ? <div className="px-5 py-12 text-center text-sm text-slate-400">Chưa có hoạt động nào.</div> : (
           <table className="w-full text-sm">
-            <thead><tr className="border-b-2 border-indigo-200 bg-indigo-50/70 text-left text-xs uppercase tracking-wide text-indigo-900">
+            <thead><tr className="border-b-2 border-indigo-200 bg-indigo-100/70 text-left text-xs uppercase tracking-wide text-indigo-800">
               <th className="w-44 px-4 py-2.5 font-medium">Thời gian</th><th className="w-40 px-4 py-2.5 font-medium">Hành động</th><th className="w-36 px-4 py-2.5 font-medium">Người thực hiện</th><th className="w-28 px-4 py-2.5 font-medium">Vai trò</th><th className="px-4 py-2.5 font-medium">Đối tượng</th>
             </tr></thead>
             <tbody>{fd.map((l) => {

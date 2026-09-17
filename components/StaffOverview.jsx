@@ -14,7 +14,7 @@ export default function StaffOverview({ D }) {
       <div className="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         {!rows.length ? <div className="px-5 py-12 text-center text-sm text-slate-400">Chưa có đầu việc nào để thống kê.</div> : (
           <table className="w-full text-sm">
-            <thead><tr className="border-b-2 border-indigo-200 bg-indigo-50/70 text-left text-xs uppercase tracking-wide text-indigo-900">
+            <thead><tr className="border-b-2 border-indigo-200 bg-indigo-100/70 text-left text-xs uppercase tracking-wide text-indigo-800">
               <th className="w-12 px-4 py-2.5 font-medium">#</th>
               <th className="px-4 py-2.5 font-medium">Nhân sự (Acc)</th>
               <th className="w-28 px-4 py-2.5 text-right font-medium">Số dự án</th>

@@ -63,7 +63,7 @@ export default function Overview({ D, onNew, onImp }) {
       </div>
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         <table className="w-full text-sm">
-          <thead><tr className="border-b-2 border-indigo-200 bg-indigo-50/70 text-left text-xs uppercase tracking-wide text-indigo-900">
+          <thead><tr className="border-b-2 border-indigo-200 bg-indigo-100/70 text-left text-xs uppercase tracking-wide text-indigo-800">
             <th className="w-12 px-4 py-2.5 font-medium">#</th>
             <th className="px-4 py-2.5 font-medium">Dự án</th>
             <th className="w-36 px-4 py-2.5 font-medium">Người chủ trì</th>

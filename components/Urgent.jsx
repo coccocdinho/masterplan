@@ -40,7 +40,7 @@ export default function Urgent({ D, me }) {
       <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         {!ts.length ? <div className="px-5 py-12 text-center text-sm text-slate-400">Không có việc cần đôn đốc.</div> : (
           <table className="w-full text-sm">
-            <thead><tr className="border-b-2 border-indigo-200 bg-indigo-50/70 text-left text-xs uppercase tracking-wide text-indigo-900">
+            <thead><tr className="border-b-2 border-indigo-200 bg-indigo-100/70 text-left text-xs uppercase tracking-wide text-indigo-800">
               <th className="w-12 px-4 py-2.5 font-medium">#</th>
               <th className="w-44 px-4 py-2.5 font-medium">Dự án</th>
               <th className="px-4 py-2.5 font-medium">Đầu việc / Việc con</th>
