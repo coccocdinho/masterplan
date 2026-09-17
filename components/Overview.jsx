@@ -68,6 +68,7 @@ export default function Overview({ D, onNew, onImp }) {
             <th className="px-4 py-2.5 font-medium">Dự án</th>
             <th className="w-36 px-4 py-2.5 font-medium">Người chủ trì</th>
             <th className="w-28 px-4 py-2.5 font-medium">Deadline</th>
+            <th className="w-32 px-4 py-2.5 font-medium">Tiến độ</th>
             <th className="w-24 px-4 py-2.5 text-right font-medium">Tổng</th>
             <th className="w-24 px-4 py-2.5 text-right font-medium">Đã xong</th>
             <th className="w-24 px-4 py-2.5 text-right font-medium">Chưa xong</th>
@@ -75,15 +76,22 @@ export default function Overview({ D, onNew, onImp }) {
             <th className="w-8"/>
           </tr></thead>
           <tbody>
-            {!vis.length && <tr><td colSpan={9} className="px-4 py-8 text-center text-sm text-slate-400">Không tìm thấy dự án khớp.</td></tr>}
+            {!vis.length && <tr><td colSpan={10} className="px-4 py-8 text-center text-sm text-slate-400">Không tìm thấy dự án khớp.</td></tr>}
             {vis.map((p, i) => {
               const x = stats(D.tasks, p.id), all = x.tot > 0 && x.dn === x.tot, pOv = projOverdue(p, D.tasks);
+              const pct = x.tot === 0 ? 0 : Math.round((x.dn / x.tot) * 100);
               return (
                 <tr key={p.id} onClick={() => router.push(`/project/${p.id}`)} className={`cursor-pointer border-b border-slate-100 last:border-0 hover:bg-indigo-50/40 ${pOv || x.ov > 0 ? "border-l-4 border-l-rose-500" : all ? "border-l-4 border-l-emerald-400" : "border-l-4 border-l-transparent"}`}>
                   <td className="px-4 py-3.5 tabular-nums font-medium text-slate-500">{i + 1}</td>
                   <td className={`px-4 py-3.5 font-medium ${all ? "text-slate-500" : "text-slate-800"}`}>{p.name}</td>
                   <td className="px-4 py-3.5 text-slate-600">{ownerName(D, p.owner)}</td>
                   <td className={`px-4 py-3.5 tabular-nums ${pOv ? "font-semibold text-rose-600" : "text-slate-600"}`}>{fmtD(p.dl) || "—"}</td>
+                  <td className="px-4 py-3.5">
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-16 overflow-hidden rounded-full bg-slate-100"><div className={`h-full rounded-full ${all ? "bg-emerald-500" : "bg-indigo-500"}`} style={{width:`${pct}%`}}/></div>
+                      <span className="w-8 shrink-0 tabular-nums text-xs text-slate-500">{pct}%</span>
+                    </div>
+                  </td>
                   <td className="px-4 py-3.5 text-right tabular-nums text-slate-700">{x.tot}</td>
                   <td className="px-4 py-3.5 text-right tabular-nums font-medium text-emerald-700">{x.dn}</td>
                   <td className="px-4 py-3.5 text-right tabular-nums text-slate-700">{x.nd}</td>

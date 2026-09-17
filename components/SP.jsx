@@ -5,7 +5,7 @@ import { ST, STO } from "../lib/constants";
 const SM = {
   [ST.N]: { Ic: Circle, bg: "bg-slate-200", tx: "text-slate-700", rg: "ring-slate-300" },
   [ST.I]: { Ic: Clock, bg: "bg-blue-100", tx: "text-blue-800", rg: "ring-blue-300" },
-  [ST.D]: { Ic: CheckCircle2, bg: "bg-slate-50", tx: "text-slate-400", rg: "ring-slate-200" },
+  [ST.D]: { Ic: CheckCircle2, bg: "bg-emerald-100", tx: "text-emerald-800", rg: "ring-emerald-300" },
 };
 
 export default function SP({ val, onChange }) {
