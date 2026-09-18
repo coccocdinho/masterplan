@@ -3,7 +3,7 @@ import { db } from "../../../lib/db";
 import { requireSession, fail, addLog } from "../../../lib/apiHelpers";
 import { canSync } from "../../../lib/permissions";
 import { sheetsConfigured } from "../../../lib/sheets";
-import { pullAll, pushProject, linkExisting, approvePending, rejectPending, getLastPull, subtaskOverflow } from "../../../lib/sheetSync";
+import { pullAll, pushProject, linkExisting, approvePending, rejectPending, getLastPull } from "../../../lib/sheetSync";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -21,9 +21,7 @@ export async function GET() {
     db().from("projects").select("id, name, sheet_tab_name").not("sheet_tab_name", "is", null).order("name"),
     getLastPull(),
   ]);
-  const linkedOut = [];
-  for (const p of linked || []) linkedOut.push({ ...p, extraSubtasks: await subtaskOverflow(p.id) });
-  return NextResponse.json({ configured, pending: pending || [], linked: linkedOut, last });
+  return NextResponse.json({ configured, pending: pending || [], linked: linked || [], last });
 }
 
 export async function POST(req) {
@@ -45,14 +43,15 @@ export async function POST(req) {
       return NextResponse.json(r);
     }
 
-    if (!canSync(session.role)) return fail("Không có quyền.", 403);
-
     if (action === "push") {
       if (!body.projectId) return fail("Thiếu projectId.");
       const r = await pushProject(body.projectId);
       await addLog(session, "sy", "App → Sheet", `Tab "${r.tab}": đẩy ${r.pushed} việc${r.conflicts.length ? `, ${r.conflicts.length} xung đột` : ""}`);
       return NextResponse.json(r);
     }
+
+    if (!canSync(session.role)) return fail("Không có quyền.", 403);
+
     if (action === "link") {
       if (!body.projectId || !body.tab) return fail("Thiếu dự án hoặc tab.");
       const r = await linkExisting(body.projectId, body.tab, body.pendingId);

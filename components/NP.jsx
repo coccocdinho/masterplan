@@ -2,11 +2,11 @@
 import { useState } from "react";
 import { X, Upload } from "lucide-react";
 import Papa from "papaparse";
-import { canAssignOwner, canSync } from "../lib/permissions";
+import { canAssignOwner } from "../lib/permissions";
 import { parseDate, normSt } from "../lib/parseSheet";
 
 export default function NP({ users, myRole, onCreate, onClose }) {
-  const [n, sn] = useState(""), [o, so] = useState(""), [dl, sdl] = useState(""), [fn, sfn] = useState(""), [csv, sc] = useState(null), [er, se] = useState(""), [link, setLink] = useState(false);
+  const [n, sn] = useState(""), [o, so] = useState(""), [dl, sdl] = useState(""), [fn, sfn] = useState(""), [csv, sc] = useState(null), [er, se] = useState(""), [link, setLink] = useState(true);
 
   function ff(row, cands) {
     for (const k of Object.keys(row)) {
@@ -42,6 +42,10 @@ export default function NP({ users, myRole, onCreate, onClose }) {
         <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4"><h3 className="text-base font-semibold text-slate-900">Tạo dự án mới</h3><button onClick={onClose} className="text-slate-400 hover:text-slate-700"><X size={18}/></button></div>
         <div className="space-y-4 px-5 py-5">
           <div><label className="mb-1 block text-sm font-medium text-slate-700">Tên dự án</label><input value={n} onChange={e=>sn(e.target.value)} placeholder="VD: Xin cấp phép kết nối RSHUB" className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"/></div>
+          <label className="flex cursor-pointer items-start gap-2.5 rounded-lg border border-emerald-200 bg-emerald-50/60 px-3 py-2.5 text-sm text-slate-700">
+            <input type="checkbox" checked={link} onChange={e=>setLink(e.target.checked)} className="mt-0.5 h-4 w-4 rounded border-slate-300 text-emerald-600"/>
+            <span className="font-medium">Đồng bộ dự án này với Google Sheet <span className="block text-xs font-normal text-slate-500">Tạo tab tương ứng để người không dùng app vẫn theo dõi và cập nhật được. Sửa ở đâu cũng tự đồng bộ.</span></span>
+          </label>
           <div className="flex gap-3">
             {canAssignOwner(myRole) && (
               <div className="flex-1"><label className="mb-1 block text-sm font-medium text-slate-700">Người chủ trì</label>
@@ -59,12 +63,6 @@ export default function NP({ users, myRole, onCreate, onClose }) {
             {er && <p className="mt-1.5 text-xs text-rose-600">{er}</p>}
             {csv && !er && <p className="mt-1.5 text-xs text-emerald-700">Đã đọc {csv.length} đầu việc.</p>}
           </div>
-          {canSync(myRole) && (
-            <label className="flex cursor-pointer items-start gap-2 text-sm text-slate-700">
-              <input type="checkbox" checked={link} onChange={e=>setLink(e.target.checked)} className="mt-0.5 rounded border-slate-300 text-indigo-600"/>
-              <span>Tạo tab tương ứng trên Google Sheet <span className="block text-xs text-slate-400">Người không dùng app vẫn theo dõi và cập nhật được trên Sheet.</span></span>
-            </label>
-          )}
         </div>
         <div className="flex justify-end gap-2 border-t border-slate-200 px-5 py-4">
           <button onClick={onClose} className="rounded-lg px-3 py-2 text-sm text-slate-500 hover:bg-slate-100">Huỷ</button>

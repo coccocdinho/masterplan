@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Trash2, X, Plus, AlertTriangle, Clock, CalendarClock, Filter, Upload, FileSpreadsheet } from "lucide-react";
 import { stats, urg, hasC, TASK_SORTERS } from "../lib/util";
-import { canDelProj, canDelTask, canAssignOwner, canSync } from "../lib/permissions";
+import { canDelProj, canDelTask, canAssignOwner } from "../lib/permissions";
 import { STO } from "../lib/constants";
 import Th from "./Th";
 import TaskRow from "./TaskRow";
@@ -91,13 +91,11 @@ export default function Detail({ proj, tasks, users, myRole, myId, onDelT, onAdd
             <span className="flex items-center gap-1.5">Deadline dự án:
               <input type="date" value={proj.dl||""} onChange={e=>onSetDeadline(proj.id,e.target.value)} className="rounded border border-transparent bg-transparent py-0.5 text-slate-700 hover:border-slate-200 focus:border-indigo-400 focus:outline-none"/>
             </span>
-            {(proj.sheet_tab_name || canSync(myRole)) && (
-              <span className="flex flex-wrap items-center gap-2">
+            <span className="flex flex-wrap items-center gap-2">
                 {proj.sheet_tab_name && <span className="flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-200"><FileSpreadsheet size={12}/> Sheet: {proj.sheet_tab_name}</span>}
-                {canSync(myRole) && <button onClick={pushSheet} disabled={sheetBusy} className="flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40"><Upload size={12}/>{sheetBusy ? "Đang xử lý…" : proj.sheet_tab_name ? "Đẩy lên Sheet" : "Liên kết Sheet (tạo tab)"}</button>}
+                <button onClick={pushSheet} disabled={sheetBusy} className="flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40"><Upload size={12}/>{sheetBusy ? "Đang xử lý…" : proj.sheet_tab_name ? "Đẩy lên Sheet" : "Đồng bộ với Google Sheet"}</button>
                 {sheetMsg && <span className="text-xs text-slate-500">{sheetMsg}</span>}
-              </span>
-            )}
+            </span>
           </div>
         </div>
         {canDelProj(myRole) && <button onClick={() => onDelP(proj.id)} className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs text-rose-600 hover:bg-rose-50"><Trash2 size={14}/> Xoá dự án</button>}
