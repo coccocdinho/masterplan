@@ -18,7 +18,7 @@ function ProjectPageInner() {
   const { id } = useParams();
   const searchParams = useSearchParams();
   const hlId = searchParams.get("hl");
-  const { D, me, delTask, delProj, updTask, addTask, addSubtask, updSubtask, delSubtask, setProjOwner, setProjDeadline, setProjName } = useApp();
+  const { D, me, delTask, delProj, updTask, addTask, addSubtask, updSubtask, delSubtask, setProjOwner, setProjDeadline, setProjName, pushToSheet } = useApp();
   const [dlg, setDlg] = useState(null);
 
   const proj = D.projects.find((p) => p.id === id);
@@ -70,7 +70,7 @@ function ProjectPageInner() {
       <Detail
         proj={proj} tasks={tasks} users={D.users} myRole={me.role} myId={me.id} hlId={hlId}
         onAdd={addTask} onUpd={updTask} onAddSub={addSubtask} onUpdSub={updSubtask} onDelSub={reqDelSub}
-        onDelT={reqDelTask} onDelP={reqDelProj} onSetOwner={setProjOwner} onSetDeadline={setProjDeadline} onSetName={setProjName}
+        onDelT={reqDelTask} onDelP={reqDelProj} onSetOwner={setProjOwner} onSetDeadline={setProjDeadline} onSetName={setProjName} onPushSheet={pushToSheet}
       />
       <Dlg open={!!dlg} title={dlg?.title} msg={dlg?.msg} okLabel={dlg?.okLabel} onOk={dlg?.onOk} onNo={() => setDlg(null)}/>
     </>

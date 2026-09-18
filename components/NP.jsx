@@ -2,11 +2,11 @@
 import { useState } from "react";
 import { X, Upload } from "lucide-react";
 import Papa from "papaparse";
-import { canAssignOwner } from "../lib/permissions";
+import { canAssignOwner, canSync } from "../lib/permissions";
 import { parseDate, normSt } from "../lib/parseSheet";
 
 export default function NP({ users, myRole, onCreate, onClose }) {
-  const [n, sn] = useState(""), [o, so] = useState(""), [dl, sdl] = useState(""), [fn, sfn] = useState(""), [csv, sc] = useState(null), [er, se] = useState("");
+  const [n, sn] = useState(""), [o, so] = useState(""), [dl, sdl] = useState(""), [fn, sfn] = useState(""), [csv, sc] = useState(null), [er, se] = useState(""), [link, setLink] = useState(false);
 
   function ff(row, cands) {
     for (const k of Object.keys(row)) {
@@ -59,10 +59,16 @@ export default function NP({ users, myRole, onCreate, onClose }) {
             {er && <p className="mt-1.5 text-xs text-rose-600">{er}</p>}
             {csv && !er && <p className="mt-1.5 text-xs text-emerald-700">Đã đọc {csv.length} đầu việc.</p>}
           </div>
+          {canSync(myRole) && (
+            <label className="flex cursor-pointer items-start gap-2 text-sm text-slate-700">
+              <input type="checkbox" checked={link} onChange={e=>setLink(e.target.checked)} className="mt-0.5 rounded border-slate-300 text-indigo-600"/>
+              <span>Tạo tab tương ứng trên Google Sheet <span className="block text-xs text-slate-400">Người không dùng app vẫn theo dõi và cập nhật được trên Sheet.</span></span>
+            </label>
+          )}
         </div>
         <div className="flex justify-end gap-2 border-t border-slate-200 px-5 py-4">
           <button onClick={onClose} className="rounded-lg px-3 py-2 text-sm text-slate-500 hover:bg-slate-100">Huỷ</button>
-          <button onClick={() => { if (n.trim()) onCreate({ name: n.trim(), owner: o, dl, csv: csv || [] }); }} disabled={!n.trim()} className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-40">Tạo dự án</button>
+          <button onClick={() => { if (n.trim()) onCreate({ name: n.trim(), owner: o, dl, csv: csv || [], linkSheet: link }); }} disabled={!n.trim()} className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-40">Tạo dự án</button>
         </div>
       </div>
     </div>

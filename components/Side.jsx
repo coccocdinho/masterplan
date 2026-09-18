@@ -3,9 +3,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Plus, FileSpreadsheet, LayoutDashboard, AlarmClock, UserCheck, Users,
-  ScrollText, FolderKanban, KeyRound, LogOut,
+  ScrollText, FolderKanban, KeyRound, LogOut, RefreshCw,
 } from "lucide-react";
-import { canUsers, canLog } from "../lib/permissions";
+import { canUsers, canLog, canSync } from "../lib/permissions";
 import { RL } from "../lib/constants";
 
 export default function Side({ onNew, onImp, urg, me, myRole, onOut, onPw }) {
@@ -15,6 +15,7 @@ export default function Side({ onNew, onImp, urg, me, myRole, onOut, onPw }) {
     { k: "urgent", href: "/urgent", lb: "Cần đôn đốc hôm nay", I: AlarmClock, badge: urg },
     { k: "staff", href: "/staff", lb: "Theo nhân sự", I: UserCheck },
     ...(canUsers(myRole) ? [{ k: "users", href: "/users", lb: "Quản lý tài khoản", I: Users }] : []),
+    ...(canSync(myRole) ? [{ k: "sheets", href: "/sheets", lb: "Đồng bộ Google Sheet", I: RefreshCw }] : []),
     ...(canLog(myRole) ? [{ k: "log", href: "/log", lb: "Nhật ký hoạt động", I: ScrollText }] : []),
   ];
   const rc = { user: "text-slate-300", admin: "text-blue-300", super: "text-amber-300" }[myRole] || "text-slate-300";

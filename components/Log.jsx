@@ -16,7 +16,7 @@ export default function Log({ D, myRole }) {
   }
   const logs = (D.logs || []).slice().reverse();
   const fd = f === "all" ? logs : logs.filter((l) => l.ac === f);
-  const filters = [["all","Tất cả"],["dt","Xoá đầu việc"],["dp","Xoá dự án"],["cp","Tạo dự án"],["au","Thêm tài khoản"],["rp","Reset mật khẩu"],["ip","Import"]];
+  const filters = [["all","Tất cả"],["dt","Xoá đầu việc"],["dp","Xoá dự án"],["cp","Tạo dự án"],["au","Thêm tài khoản"],["rp","Reset mật khẩu"],["ip","Import"],["sy","Đồng bộ Sheet"]];
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-6 sm:px-8">
