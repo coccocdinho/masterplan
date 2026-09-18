@@ -62,9 +62,9 @@ export default function SheetSync({ myRole, projects = [], onChanged }) {
         {!!last?.errors?.length && <ul className="mt-2 space-y-1 text-xs text-rose-600">{last.errors.map((e, i) => <li key={i}>• {e}</li>)}</ul>}
         {!!last?.conflicts?.length && (
           <div className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
-            <div className="mb-1 flex items-center gap-1 font-semibold"><AlertTriangle size={13}/> {last.conflicts.length} việc bị sửa ở cả App và Sheet — giữ nguyên, chưa ghi đè:</div>
+            <div className="mb-1 flex items-center gap-1 font-semibold"><AlertTriangle size={13}/> {last.conflicts.length} dòng bị sửa ở cả App và Sheet — lượt kéo giữ nguyên, lần "Đẩy lên Sheet" tới sẽ lấy bản App:</div>
             <ul className="space-y-0.5">{last.conflicts.slice(0, 10).map((c, i) => <li key={i}>• [{c.tab}] dòng {c.row}: {c.name}</li>)}</ul>
-            <div className="mt-1">Muốn lấy bản App thì bấm "Đẩy lên Sheet" ở dự án đó; muốn lấy bản Sheet thì sửa lại trong App cho giống.</div>
+            <div className="mt-1">Muốn giữ bản Sheet thì sửa lại trong App cho giống trước khi đẩy.</div>
           </div>
         )}
         {!!last?.orphans?.length && <div className="mt-2 text-xs text-slate-500">{last.orphans.length} dòng có mã _id không còn trong App (đã xoá bên App?) — bị bỏ qua.</div>}
@@ -87,7 +87,7 @@ export default function SheetSync({ myRole, projects = [], onChanged }) {
                     <option value="">Chọn dự án có sẵn…</option>
                     {free.map((pr) => <option key={pr.id} value={pr.id}>{pr.name}</option>)}
                   </select>
-                  <button disabled={!!busy || !pick[p.id]} onClick={() => { if (window.confirm(`Liên kết tab "${p.source_tab_name}" với dự án đã chọn?\n\nApp là bản chính: toàn bộ đầu việc hiện có trong tab sẽ bị thay bằng dữ liệu từ App. (Lịch sử phiên bản Google Sheet vẫn khôi phục được.)`)) run(`l${p.id}`, { action: "link", projectId: pick[p.id], tab: p.source_tab_name, pendingId: p.id }, (r) => `Đã liên kết và đẩy ${r.pushed} việc từ App lên tab "${r.tab}".`); }} className="flex items-center gap-1 rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-40"><Upload size={14}/> Liên kết (App là bản chính)</button>
+                  <button disabled={!!busy || !pick[p.id]} onClick={() => { if (window.confirm(`Liên kết tab "${p.source_tab_name}" với dự án đã chọn?\n\nApp là bản chính: toàn bộ đầu việc hiện có trong tab sẽ bị thay bằng dữ liệu từ App. (Lịch sử phiên bản Google Sheet vẫn khôi phục được.)`)) run(`l${p.id}`, { action: "link", projectId: pick[p.id], tab: p.source_tab_name, pendingId: p.id }, (r) => `Đã liên kết và ghi ${r.pushed} dòng từ App lên tab "${r.tab}".`); }} className="flex items-center gap-1 rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-40"><Upload size={14}/> Liên kết (App là bản chính)</button>
                   <button disabled={!!busy} onClick={() => { if (window.confirm(`Tạo dự án MỚI từ tab "${p.source_tab_name}" và nhập đầu việc từ Sheet vào App?\n\nChỉ dùng cho tab chưa có trong App.`)) run(`a${p.id}`, { action: "approve", pendingId: p.id }, (r) => `Đã tạo dự án "${r.project.name}" với ${r.created} đầu việc.`); }} className="flex items-center gap-1 rounded-lg border border-emerald-300 px-3 py-1.5 text-sm font-medium text-emerald-700 hover:bg-emerald-50 disabled:opacity-40"><Check size={14}/> Tạo dự án mới</button>
                   <button disabled={!!busy} onClick={() => run(`r${p.id}`, { action: "reject", pendingId: p.id }, () => "Đã bỏ qua tab.")} className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm text-slate-500 hover:bg-slate-100 disabled:opacity-40"><X size={14}/> Bỏ qua</button>
                 </div>
@@ -105,9 +105,9 @@ export default function SheetSync({ myRole, projects = [], onChanged }) {
               <li key={p.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
                 <div className="min-w-0">
                   <div className="font-medium text-slate-800">{p.name}</div>
-                  <div className="mt-0.5 text-xs text-slate-500">Tab: {p.sheet_tab_name}{p.extraSubtasks ? ` · ${p.extraSubtasks} việc con chỉ có trên App` : ""}</div>
+                  <div className="mt-0.5 text-xs text-slate-500">Tab: {p.sheet_tab_name}</div>
                 </div>
-                <button disabled={!!busy} onClick={() => run(`p${p.id}`, { action: "push", projectId: p.id }, (r) => `Đã đẩy ${r.pushed} việc lên tab "${r.tab}"${r.conflicts.length ? `, ${r.conflicts.length} xung đột (bỏ qua)` : ""}.`)} className="flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40"><Upload size={14}/> Đẩy lên Sheet</button>
+                <button disabled={!!busy} onClick={() => run(`p${p.id}`, { action: "push", projectId: p.id }, (r) => `Đã cập nhật ${r.pushed} dòng trên tab "${r.tab}"${r.conflicts.length ? `, ${r.conflicts.length} dòng sửa cả hai phía đã lấy bản App` : ""}.`)} className="flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40"><Upload size={14}/> Đẩy lên Sheet</button>
               </li>
             ))}
           </ul>

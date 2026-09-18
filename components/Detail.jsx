@@ -22,7 +22,7 @@ export default function Detail({ proj, tasks, users, myRole, myId, onDelT, onAdd
     setSheetBusy(true); setSheetMsg("");
     try {
       const r = await onPushSheet(proj.id);
-      setSheetMsg(`Đã đẩy ${r.pushed} việc lên tab "${r.tab}"${r.conflicts.length ? ` · ${r.conflicts.length} việc bị sửa cả hai phía, bỏ qua` : ""}.`);
+      setSheetMsg(r.pushed ? `Đã cập nhật ${r.pushed} dòng trên tab "${r.tab}"${r.conflicts.length ? ` · ${r.conflicts.length} dòng bị sửa cả hai phía, đã lấy bản App` : ""}.` : `Tab "${r.tab}" đã khớp với App, không có gì để đẩy.`);
     } catch (e) { setSheetMsg(e.message); }
     setSheetBusy(false);
   }
