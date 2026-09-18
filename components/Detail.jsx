@@ -22,7 +22,7 @@ export default function Detail({ proj, tasks, users, myRole, myId, onDelT, onAdd
     setSheetBusy(true); setSheetMsg("");
     try {
       const r = await onPushSheet(proj.id);
-      setSheetMsg(r.pushed ? `Đã cập nhật ${r.pushed} dòng trên tab "${r.tab}"${r.conflicts.length ? ` · ${r.conflicts.length} dòng bị sửa cả hai phía, đã lấy bản App` : ""}.` : `Tab "${r.tab}" đã khớp với App, không có gì để đẩy.`);
+      setSheetMsg(r.pushed ? `Đã đồng bộ tab "${r.tab}": Sheet → App ${r.created + r.updated} thay đổi, App → Sheet ${r.pushed} dòng${r.conflicts.length ? ` · ${r.conflicts.length} dòng sửa cả hai phía, đã lấy bản App` : ""}.` : `Tab "${r.tab}" đã khớp với App${r.created + r.updated ? ` (đã nhận ${r.created + r.updated} thay đổi từ Sheet)` : ""}.`);
     } catch (e) { setSheetMsg(e.message); }
     setSheetBusy(false);
   }
@@ -93,7 +93,7 @@ export default function Detail({ proj, tasks, users, myRole, myId, onDelT, onAdd
             </span>
             <span className="flex flex-wrap items-center gap-2">
                 {proj.sheet_tab_name && <span className="flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-200"><FileSpreadsheet size={12}/> Sheet: {proj.sheet_tab_name}</span>}
-                <button onClick={pushSheet} disabled={sheetBusy} className="flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40"><Upload size={12}/>{sheetBusy ? "Đang xử lý…" : proj.sheet_tab_name ? "Đẩy lên Sheet" : "Đồng bộ với Google Sheet"}</button>
+                <button onClick={pushSheet} disabled={sheetBusy} className="flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40"><Upload size={12}/>{sheetBusy ? "Đang xử lý…" : proj.sheet_tab_name ? "Đồng bộ ngay" : "Đồng bộ với Google Sheet"}</button>
                 {sheetMsg && <span className="text-xs text-slate-500">{sheetMsg}</span>}
             </span>
           </div>

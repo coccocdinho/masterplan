@@ -38,17 +38,17 @@ export default function SheetSync({ myRole, projects = [], onChanged }) {
   }
 
   const last = info?.last;
-  const pullMsg = (r) => `Đã đồng bộ: ${r.created} việc mới, ${r.updated} việc cập nhật${r.conflicts?.length ? `, ${r.conflicts.length} xung đột` : ""}${r.newPending ? `, ${r.newPending} tab mới chờ duyệt` : ""}.`;
+  const pullMsg = (r) => `Đã đồng bộ. Sheet → App: ${r.created} mới, ${r.updated} cập nhật. App → Sheet: ${r.pushed} dòng${r.conflicts?.length ? `. ${r.conflicts.length} dòng sửa cả hai phía (đã lấy bản App)` : ""}${r.newPending ? `. ${r.newPending} tab mới chờ duyệt` : ""}.`;
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-6 sm:px-8">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold text-slate-900">Đồng bộ Google Sheet</h1>
-          <p className="mt-0.5 text-sm text-slate-500">Sheet → App tự chạy mỗi ngày và khi mở app; App → Sheet bấm tay theo từng dự án.</p>
+          <p className="mt-0.5 text-sm text-slate-500">App là bản chính. Sửa ở đâu cũng tự đồng bộ hai chiều: vài giây sau khi sửa trong app, khi mở app, mỗi 15 phút khi đang mở và mỗi sáng 6h.</p>
         </div>
         <button disabled={!!busy || !info?.configured} onClick={() => run("pull", { action: "pull" }, pullMsg)} className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 disabled:opacity-40">
-          <RefreshCw size={15} className={busy === "pull" ? "animate-spin" : ""}/> Đồng bộ ngay (Sheet → App)
+          <RefreshCw size={15} className={busy === "pull" ? "animate-spin" : ""}/> Đồng bộ ngay (2 chiều)
         </button>
       </div>
 
@@ -56,15 +56,32 @@ export default function SheetSync({ myRole, projects = [], onChanged }) {
       {err && <div className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">{err}</div>}
       {msg && <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{msg}</div>}
 
+      <div className="mt-4 rounded-xl border border-indigo-100 bg-indigo-50/50 px-4 py-3 text-sm text-slate-700">
+        <div className="font-semibold text-indigo-900">Cơ chế đồng bộ: App là bản chính</div>
+        <p className="mt-1 text-xs text-slate-500">Mỗi dòng nhớ "bản chụp" ở lần đồng bộ trước, rồi so sánh xem bên nào đã sửa kể từ đó:</p>
+        <table className="mt-2 w-full text-xs">
+          <thead><tr className="text-left text-slate-500"><th className="w-1/3 py-1 pr-3 font-medium">Từ lần đồng bộ trước</th><th className="py-1 font-medium">Kết quả</th></tr></thead>
+          <tbody className="divide-y divide-indigo-100">
+            <tr><td className="py-1.5 pr-3 font-medium">Chỉ Sheet sửa</td><td className="py-1.5">App cập nhật theo Sheet.</td></tr>
+            <tr><td className="py-1.5 pr-3 font-medium">Chỉ App sửa (Sheet chưa sửa)</td><td className="py-1.5">Sheet cập nhật theo App (vài giây sau khi sửa). Đồng bộ từ Sheet không bao giờ ghi đè chỉnh sửa của App.</td></tr>
+            <tr><td className="py-1.5 pr-3 font-medium">Cả hai cùng sửa một dòng</td><td className="py-1.5">Lấy bản <b>App</b>, và báo ở mục xung đột bên dưới.</td></tr>
+            <tr><td className="py-1.5 pr-3 font-medium">Không ai sửa</td><td className="py-1.5">Không làm gì.</td></tr>
+            <tr><td className="py-1.5 pr-3 font-medium">Gõ thêm dòng mới trên Sheet</td><td className="py-1.5">Tạo thêm trong App (đầu việc mới, hoặc việc con của đầu việc phía trên).</td></tr>
+            <tr><td className="py-1.5 pr-3 font-medium">Xoá trong App</td><td className="py-1.5">Dòng biến mất khỏi Sheet.</td></tr>
+            <tr><td className="py-1.5 pr-3 font-medium">Xoá dòng trên Sheet</td><td className="py-1.5">Không xoá trong App — dòng được ghi lại. Muốn xoá thì xoá trong App.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
       <div className="mt-4 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">
         Lần đồng bộ gần nhất: <span className="font-medium text-slate-800">{last?.at ? fmtDT(last.at) : "chưa có"}</span>
-        {last && <span className="ml-2 text-slate-400">({last.created} mới, {last.updated} cập nhật)</span>}
+        {last && <span className="ml-2 text-slate-400">(Sheet → App: {last.created} mới, {last.updated} cập nhật · App → Sheet: {last.pushed ?? 0} dòng)</span>}
         {!!last?.errors?.length && <ul className="mt-2 space-y-1 text-xs text-rose-600">{last.errors.map((e, i) => <li key={i}>• {e}</li>)}</ul>}
         {!!last?.conflicts?.length && (
           <div className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
-            <div className="mb-1 flex items-center gap-1 font-semibold"><AlertTriangle size={13}/> {last.conflicts.length} dòng bị sửa ở cả App và Sheet — lượt kéo giữ nguyên, lần "Đẩy lên Sheet" tới sẽ lấy bản App:</div>
+            <div className="mb-1 flex items-center gap-1 font-semibold"><AlertTriangle size={13}/> {last.conflicts.length} dòng bị sửa ở cả App và Sheet trong lần đồng bộ gần nhất — đã lấy bản App:</div>
             <ul className="space-y-0.5">{last.conflicts.slice(0, 10).map((c, i) => <li key={i}>• [{c.tab}] dòng {c.row}: {c.name}</li>)}</ul>
-            <div className="mt-1">Muốn giữ bản Sheet thì sửa lại trong App cho giống trước khi đẩy.</div>
+            <div className="mt-1">Bản Sheet bị thay vẫn xem lại được trong Tệp → Lịch sử phiên bản của Google Sheet.</div>
           </div>
         )}
         {!!last?.orphans?.length && <div className="mt-2 text-xs text-slate-500">{last.orphans.length} dòng có mã _id không còn trong App (đã xoá bên App?) — bị bỏ qua.</div>}
@@ -107,7 +124,7 @@ export default function SheetSync({ myRole, projects = [], onChanged }) {
                   <div className="font-medium text-slate-800">{p.name}</div>
                   <div className="mt-0.5 text-xs text-slate-500">Tab: {p.sheet_tab_name}</div>
                 </div>
-                <button disabled={!!busy} onClick={() => run(`p${p.id}`, { action: "push", projectId: p.id }, (r) => `Đã cập nhật ${r.pushed} dòng trên tab "${r.tab}"${r.conflicts.length ? `, ${r.conflicts.length} dòng sửa cả hai phía đã lấy bản App` : ""}.`)} className="flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40"><Upload size={14}/> Đẩy lên Sheet</button>
+                <button disabled={!!busy} onClick={() => run(`p${p.id}`, { action: "push", projectId: p.id }, (r) => `Đã đồng bộ tab "${r.tab}": Sheet → App ${r.created + r.updated} thay đổi, App → Sheet ${r.pushed} dòng${r.conflicts.length ? `, ${r.conflicts.length} dòng sửa cả hai phía đã lấy bản App` : ""}.`)} className="flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40"><RefreshCw size={14}/> Đồng bộ dự án này</button>
               </li>
             ))}
           </ul>

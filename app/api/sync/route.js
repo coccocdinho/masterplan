@@ -3,7 +3,7 @@ import { db } from "../../../lib/db";
 import { requireSession, fail, addLog } from "../../../lib/apiHelpers";
 import { canSync } from "../../../lib/permissions";
 import { sheetsConfigured } from "../../../lib/sheets";
-import { pullAll, pushProject, linkExisting, approvePending, rejectPending, getLastPull } from "../../../lib/sheetSync";
+import { syncAll, pushProject, linkExisting, approvePending, rejectPending, getLastPull } from "../../../lib/sheetSync";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -38,8 +38,8 @@ export async function POST(req) {
         const last = await getLastPull();
         if (last?.at && Date.now() - last.at < AUTO_MIN_GAP_MS) return NextResponse.json({ skipped: "recent", last });
       } else if (!canSync(session.role)) return fail("Không có quyền.", 403);
-      const r = await pullAll();
-      if (r.created || r.updated) await addLog(session, "sy", "Sheet → App", `${r.created} việc mới, ${r.updated} việc cập nhật`);
+      const r = await syncAll();
+      if (r.created || r.updated || r.pushed) await addLog(session, "sy", "Đồng bộ 2 chiều", `Sheet → App: ${r.created} mới, ${r.updated} cập nhật · App → Sheet: ${r.pushed} dòng${r.conflicts.length ? ` · ${r.conflicts.length} dòng sửa cả hai phía (lấy bản App)` : ""}`);
       return NextResponse.json(r);
     }
 

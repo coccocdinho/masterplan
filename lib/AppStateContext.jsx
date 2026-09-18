@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiGet, apiPost, apiPatch, apiDelete } from "./apiClient";
 import { RL } from "./constants";
@@ -20,6 +20,24 @@ export function AppStateProvider({ me, children }) {
   const [showNP, setShowNP] = useState(false);
   const [showIM, setShowIM] = useState(false);
   const [showCP, setShowCP] = useState(false);
+
+  // App edits reach the Google Sheet a few seconds after the last edit (debounced per project), only for linked projects.
+  const Dref = useRef(D);
+  Dref.current = D;
+  const pushTimers = useRef(new Map());
+  function schedulePush(projId) {
+    const p = Dref.current.projects.find((x) => x.id === projId);
+    if (!p?.sheet_tab_name) return;
+    clearTimeout(pushTimers.current.get(projId));
+    pushTimers.current.set(projId, setTimeout(async () => {
+      pushTimers.current.delete(projId);
+      for (let i = 0; i < 3; i++) {
+        try { await apiPost("/api/sync", { action: "push", projectId: projId }); return; }
+        catch (e) { if (!/đồng bộ khác/.test(e.message)) return; await new Promise((r) => setTimeout(r, 15000)); }
+      }
+    }, 8000));
+  }
+  const pidOfTask = (tid) => Dref.current.tasks.find((t) => t.id === tid)?.pid;
 
   const reload = useCallback(async () => {
     try {
@@ -155,6 +173,7 @@ export function AppStateProvider({ me, children }) {
     setD((d) => ({ ...d, tasks: d.tasks.map((t) => (t.id === tid ? { ...t, ...patch } : t)) }));
     try {
       await apiPatch(`/api/tasks/${tid}`, patch);
+      schedulePush(pidOfTask(tid));
     } catch (e) {
       reload();
       throw e;
@@ -167,6 +186,7 @@ export function AppStateProvider({ me, children }) {
     setD((d) => ({ ...d, tasks: d.tasks.filter((t) => t.id !== tid) }));
     try {
       await apiDelete(`/api/tasks/${tid}`);
+      if (t) schedulePush(t.pid);
       pushLog("dt", nm, proj ? `Trong dự án: ${proj.name}` : "");
     } catch (e) {
       reload();
@@ -188,6 +208,7 @@ export function AppStateProvider({ me, children }) {
     }));
     try {
       await apiPatch(`/api/tasks/${tid}/subtasks/${subId}`, patch);
+      schedulePush(pidOfTask(tid));
     } catch (e) {
       reload();
       throw e;
@@ -200,6 +221,7 @@ export function AppStateProvider({ me, children }) {
     }));
     try {
       await apiDelete(`/api/tasks/${tid}/subtasks/${subId}`);
+      schedulePush(pidOfTask(tid));
     } catch (e) {
       reload();
       throw e;

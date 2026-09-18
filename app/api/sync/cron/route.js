@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "../../../../lib/db";
 import { sheetsConfigured } from "../../../../lib/sheets";
-import { pullAll } from "../../../../lib/sheetSync";
+import { syncAll } from "../../../../lib/sheetSync";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -14,11 +14,11 @@ export async function GET(req) {
   }
   if (!sheetsConfigured()) return NextResponse.json({ skipped: "not_configured" });
   try {
-    const r = await pullAll();
-    if (r.created || r.updated) {
+    const r = await syncAll();
+    if (r.created || r.updated || r.pushed) {
       await db().from("logs").insert({
         action_code: "sy", actor_name: "Hệ thống", actor_role: "system",
-        target_name: "Sheet → App (tự động)", detail: `${r.created} việc mới, ${r.updated} việc cập nhật`,
+        target_name: "Đồng bộ 2 chiều (tự động)", detail: `Sheet → App: ${r.created} mới, ${r.updated} cập nhật · App → Sheet: ${r.pushed} dòng`,
       });
     }
     return NextResponse.json(r);
