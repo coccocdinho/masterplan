@@ -7,6 +7,7 @@ import Side from "./Side";
 import NP from "./NP";
 import IM from "./IM";
 import ChPw from "./ChPw";
+import BotWidget from "./BotWidget";
 
 function ShellInner({ children }) {
   const { D, me, loading, reload, logout, createProj, importProjs, changePw, showNP, setShowNP, showIM, setShowIM, showCP, setShowCP } = useApp();
@@ -38,6 +39,7 @@ function ShellInner({ children }) {
       {showNP && <NP users={D.users} myRole={me.role} onCreate={createProj} onClose={() => setShowNP(false)}/>}
       {showIM && <IM existing={D.projects.map((p) => p.name)} onImp={importProjs} onClose={() => setShowIM(false)}/>}
       {showCP && <ChPw onSave={changePw} onClose={() => setShowCP(false)}/>}
+      <BotWidget/>
     </div>
   );
 }
