@@ -66,7 +66,7 @@ export default function Detail({ proj, tasks, users, myRole, myId, onDelT, onAdd
   ];
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-8">
+    <div className="mx-auto max-w-[1600px] px-4 py-6 sm:px-8">
       <button onClick={() => router.push("/overview")} className="mb-4 flex items-center gap-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-800"><ArrowLeft size={15}/> Tổng quan</button>
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
@@ -134,17 +134,17 @@ export default function Detail({ proj, tasks, users, myRole, myId, onDelT, onAdd
         {anyFilter && <button onClick={clearFilters} className="flex items-center gap-1 rounded-md px-2 py-1 text-slate-400 hover:text-slate-600"><X size={12}/> Xoá lọc</button>}
       </div>
 
-      <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <table className="w-full table-fixed text-xs">
-          <colgroup><col className="w-6"/><col className="w-14"/><col/><col className="w-32"/><col className="w-24"/><col className="w-28"/><col className="w-32"/><col className="w-20"/><col className="w-10"/></colgroup>
-          <thead><tr className="border-b-2 border-indigo-200 bg-indigo-100/70 text-left text-[11px] uppercase tracking-wide text-indigo-800">
-            <th className="px-2 py-1.5 font-medium">#</th>
+      <div className="max-h-[75vh] overflow-auto rounded-xl border border-slate-300 bg-white shadow-sm">
+        <table className="w-full min-w-[1100px] table-fixed border-collapse text-xs">
+          <colgroup><col className="w-12"/><col className="w-28"/><col/><col className="w-[130px]"/><col className="w-28"/><col className="w-[130px]"/><col className="w-[140px]"/><col className="w-[22%]"/><col className="w-14"/></colgroup>
+          <thead className="sticky top-0 z-10"><tr className="bg-slate-100 text-left text-[11px] uppercase tracking-wide text-slate-600 shadow-[inset_0_-2px_0_var(--color-slate-300)] [&>th]:border-r [&>th]:border-slate-200 [&>th:last-child]:border-r-0">
+            <th className="px-2.5 py-2 font-semibold">#</th>
             <Th label="Hạng mục" k="hm" sortKey={sortKey} sortDir={sortDir} onSort={toggleSort}/>
             <Th label="Đầu việc / Việc con" k="dv" sortKey={sortKey} sortDir={sortDir} onSort={toggleSort}/>
             <Th label="Deadline" k="dl" sortKey={sortKey} sortDir={sortDir} onSort={toggleSort}/>
             <Th label="Acc" k="acc" sortKey={sortKey} sortDir={sortDir} onSort={toggleSort}/>
             <Th label="Trạng thái" k="st" sortKey={sortKey} sortDir={sortDir} onSort={toggleSort}/>
-            <Th label="Tình trạng deadline" k="urg" sortKey={sortKey} sortDir={sortDir} onSort={toggleSort}/>
+            <Th label="Tình trạng" k="urg" sortKey={sortKey} sortDir={sortDir} onSort={toggleSort}/>
             <Th label="Ghi chú" k="gc" sortKey={sortKey} sortDir={sortDir} onSort={toggleSort}/>
             <th/>
           </tr></thead>

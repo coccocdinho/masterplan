@@ -11,10 +11,10 @@ const UU = {
   none: { lb: () => "Chưa có deadline", bg: "bg-slate-50", tx: "text-slate-400", rg: "ring-slate-200", Ic: Circle },
 };
 
-export default function UB({ t }) {
+export default function UB({ t, compact }) {
   const lv = urg(t), dd = ddiff(t.dl), s = UU[lv], I = s.Ic;
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset ${s.bg} ${s.tx} ${s.rg}`}>
+    <span className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full font-medium ${compact ? "px-2 py-0.5 text-[11px] leading-4 my-0.5" : "px-2.5 py-1 text-xs"} ring-1 ring-inset ${s.bg} ${s.tx} ${s.rg}`}>
       <I size={11} strokeWidth={2.5}/>{s.lb(dd)}
     </span>
   );
