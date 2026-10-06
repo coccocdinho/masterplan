@@ -7,6 +7,7 @@ import { canDelProj, canDelTask, canAssignOwner } from "../lib/permissions";
 import { STO } from "../lib/constants";
 import Th from "./Th";
 import TaskRow from "./TaskRow";
+import DateInput from "./DateInput";
 import StaffChart from "./StaffChart";
 
 export default function Detail({ proj, tasks, users, myRole, myId, onDelT, onAdd, onUpd, onAddSub, onUpdSub, onDelSub, onDelP, onSetOwner, onSetDeadline, onSetName, onPushSheet, hlId }) {
@@ -89,7 +90,7 @@ export default function Detail({ proj, tasks, users, myRole, myId, onDelT, onAdd
               )}
             </span>
             <span className="flex items-center gap-1.5">Deadline dự án:
-              <input type="date" value={proj.dl||""} onChange={e=>onSetDeadline(proj.id,e.target.value)} className="rounded border border-transparent bg-transparent py-0.5 text-slate-700 hover:border-slate-200 focus:border-indigo-400 focus:outline-none"/>
+              <DateInput value={proj.dl} onCommit={v=>onSetDeadline(proj.id,v)} className="rounded border border-transparent bg-transparent py-0.5 text-slate-700 hover:border-slate-200 focus:border-indigo-400 focus:outline-none"/>
             </span>
             <span className="flex flex-wrap items-center gap-2">
                 {proj.sheet_tab_name && <span className="flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-200"><FileSpreadsheet size={12}/> Sheet: {proj.sheet_tab_name}</span>}

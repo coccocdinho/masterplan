@@ -6,6 +6,7 @@ import { ST } from "../lib/constants";
 import SP from "./SP";
 import UB from "./UB";
 import AutoTextarea from "./AutoTextarea";
+import DateInput from "./DateInput";
 import { CELL, INP } from "./TaskRow";
 
 export default function SubRow({ t, s, num, onUpdSub, onDelSub }) {
@@ -30,7 +31,7 @@ export default function SubRow({ t, s, num, onUpdSub, onDelSub }) {
         </div>
       </td>
       <td className={CELL}>
-        <input type="date" value={s.dl||""} onChange={e=>trySetDl(e.target.value)} className={`${INP} tabular-nums ${err ? "!border-rose-400 text-rose-600" : s.dl ? muted : "text-slate-300"}`}/>
+        <DateInput value={s.dl} onCommit={trySetDl} className={`${INP} tabular-nums ${err ? "!border-rose-400 text-rose-600" : s.dl ? muted : "text-slate-300"}`}/>
         {err && <div className="mt-0.5 px-1.5 text-[10px] leading-tight text-rose-600">Vượt hạn việc cha ({fmtD(t.dl)}).</div>}
       </td>
       <td className={CELL}><AutoTextarea value={s.acc||""} onChange={e=>onUpdSub(t.id,s.id,{acc:e.target.value})} className={`${INP} ${muted}`}/></td>

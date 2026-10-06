@@ -5,6 +5,7 @@ import SP from "./SP";
 import UB from "./UB";
 import SubRow from "./SubRow";
 import AutoTextarea from "./AutoTextarea";
+import DateInput from "./DateInput";
 
 export const CELL = "border-r border-slate-200 px-1 py-1 last:border-r-0";
 export const INP = "w-full rounded border border-transparent bg-transparent px-1.5 py-0.5 leading-5 hover:border-slate-300 focus:border-indigo-400 focus:bg-white focus:outline-none";
@@ -20,7 +21,7 @@ export default function TaskRow({ t, idx, hl, canDel, refCb, onUpd, onAddSub, on
         </td>
         <td className={CELL}><AutoTextarea value={t.hm||""} onChange={e=>onUpd(t.id,{hm:e.target.value})} className={`${INP} ${dn ? "text-slate-400" : "text-slate-600"}`}/></td>
         <td className={CELL}><AutoTextarea value={t.dv||""} onChange={e=>onUpd(t.id,{dv:e.target.value})} placeholder="Đầu việc" className={`${INP} text-[13px] font-semibold ${dn ? "text-slate-400 line-through" : "text-slate-900"}`}/></td>
-        <td className={CELL}><input type="date" value={t.dl||""} onChange={e=>onUpd(t.id,{dl:e.target.value})} className={`${INP} tabular-nums ${t.dl ? muted : "text-slate-300"}`}/></td>
+        <td className={CELL}><DateInput value={t.dl} onCommit={v=>onUpd(t.id,{dl:v})} className={`${INP} tabular-nums ${t.dl ? muted : "text-slate-300"}`}/></td>
         <td className={CELL}><AutoTextarea value={t.acc||""} onChange={e=>onUpd(t.id,{acc:e.target.value})} className={`${INP} ${muted}`}/></td>
         <td className={CELL}><SP val={t.st} onChange={v=>onUpd(t.id,{st:v})} compact/></td>
         <td className={CELL}>{hasC(t) ? <UB t={t} compact/> : <span className="block py-0.5 leading-5 text-slate-300">—</span>}</td>
