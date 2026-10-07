@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Trash2, X, Plus, AlertTriangle, Clock, CalendarClock, Filter, Upload, FileSpreadsheet } from "lucide-react";
+import { ArrowLeft, Trash2, X, Plus, AlertTriangle, Clock, CalendarClock, Filter, Upload, FileSpreadsheet, Users, ChevronUp, ChevronDown } from "lucide-react";
 import { stats, urg, hasC, TASK_SORTERS } from "../lib/util";
 import { canDelProj, canDelTask, canAssignOwner } from "../lib/permissions";
 import { STO } from "../lib/constants";
@@ -17,6 +17,10 @@ export default function Detail({ proj, tasks, users, myRole, myId, onDelT, onAdd
   const [hmF, setHmF] = useState(""), [accF, setAccF] = useState(""), [stF, setStF] = useState(""), [dlFrom, setDlFrom] = useState(""), [dlTo, setDlTo] = useState("");
   const [sortKey, setSortKey] = useState("urg"), [sortDir, setSortDir] = useState("asc");
   const [nameDraft, setNameDraft] = useState(proj.name);
+  // Staff breakdown is collapsed by default so the checklist gets the screen; remembered per browser.
+  const [showStaff, setShowStaffRaw] = useState(false);
+  useEffect(() => { try { setShowStaffRaw(localStorage.getItem("detail.showStaff") === "1"); } catch {} }, []);
+  function setShowStaff(f) { setShowStaffRaw((v) => { const n = f(v); try { localStorage.setItem("detail.showStaff", n ? "1" : "0"); } catch {} return n; }); }
   const [sheetBusy, setSheetBusy] = useState(false), [sheetMsg, setSheetMsg] = useState("");
 
   async function pushSheet() {
@@ -67,9 +71,9 @@ export default function Detail({ proj, tasks, users, myRole, myId, onDelT, onAdd
   ];
 
   return (
-    <div className="mx-auto max-w-[1600px] px-4 py-6 sm:px-8">
-      <button onClick={() => router.push("/overview")} className="mb-4 flex items-center gap-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-800"><ArrowLeft size={15}/> Tổng quan</button>
-      <div className="mb-5 flex items-start justify-between gap-4">
+    <div className="mx-auto max-w-[1600px] px-4 py-4 sm:px-8">
+      <button onClick={() => router.push("/overview")} className="mb-2 flex items-center gap-1 text-xs font-medium text-indigo-600 hover:text-indigo-800"><ArrowLeft size={13}/> Tổng quan</button>
+      <div className="mb-3 flex items-start justify-between gap-4">
         <div>
           <input
             value={nameDraft}
@@ -102,40 +106,43 @@ export default function Detail({ proj, tasks, users, myRole, myId, onDelT, onAdd
         {canDelProj(myRole) && <button onClick={() => onDelP(proj.id)} className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs text-rose-600 hover:bg-rose-50"><Trash2 size={14}/> Xoá dự án</button>}
       </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <div className="flex flex-wrap items-end justify-between gap-6">
-          <div className="flex flex-wrap gap-8">
-            {[{ l: "Tổng việc", v: x.tot, c: "text-slate-900" }, { l: "Đã xong", v: x.dn, c: "text-emerald-600" }, { l: "Chưa xong", v: x.nd, c: "text-slate-900" }].map((i) => (
-              <div key={i.l}><div className={`text-3xl font-bold tabular-nums leading-none ${i.c}`}>{i.v}</div><div className="mt-1 text-sm text-slate-500">{i.l}</div></div>
-            ))}
+      <div className="mb-3 rounded-xl border border-slate-200 bg-white px-4 py-2.5 shadow-sm">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+          <div className="flex items-baseline gap-4 text-sm">
+            <span><b className="text-lg tabular-nums text-slate-900">{x.tot}</b> <span className="text-slate-500">việc</span></span>
+            <span><b className="text-lg tabular-nums text-emerald-600">{x.dn}</b> <span className="text-slate-500">xong</span></span>
+            <span><b className="text-lg tabular-nums text-slate-900">{x.nd}</b> <span className="text-slate-500">chưa xong</span></span>
           </div>
-          <div className="min-w-[180px] flex-1 max-w-xs">
-            <div className="flex items-center justify-between text-sm"><span className="text-slate-500">Tiến độ</span><span className="font-semibold tabular-nums text-slate-700">{pct}%</span></div>
-            <div className="mt-1.5 h-2.5 w-full overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-emerald-500 transition-all" style={{width:`${pct}%`}}/></div>
+          <div className="flex w-44 items-center gap-2" title="Tiến độ">
+            <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-emerald-500 transition-all" style={{width:`${pct}%`}}/></div>
+            <span className="text-sm font-semibold tabular-nums text-slate-700">{pct}%</span>
           </div>
+          <span className="hidden h-5 w-px bg-slate-200 sm:block"/>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {CH.map((c) => { const a = fl === c.k, I = c.I; return (
+              <button key={c.k} onClick={() => sfl(a ? null : c.k)} className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset transition ${a ? `${c.b} ${c.t} ${c.r}` : c.v ? `bg-white ${c.t} ring-slate-200 hover:bg-slate-50` : "bg-white text-slate-400 ring-slate-200 hover:bg-slate-50"}`}><I size={12}/><span className="tabular-nums font-semibold">{c.v}</span>{c.l}</button>
+            );})}
+            {fl && <button onClick={() => sfl(null)} className="flex items-center gap-1 rounded-full px-2 py-1 text-xs text-slate-400 hover:text-slate-600"><X size={12}/> Bỏ lọc</button>}
+          </div>
+          <button onClick={() => setShowStaff((v) => !v)} className="ml-auto flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-slate-500 hover:bg-slate-50 hover:text-slate-700">
+            <Users size={13}/> Theo nhân sự {showStaff ? <ChevronUp size={13}/> : <ChevronDown size={13}/>}
+          </button>
         </div>
-        <div className="mt-5 flex flex-wrap gap-2 border-t border-slate-100 pt-4">
-          {CH.map((c) => { const a = fl === c.k, I = c.I; return (
-            <button key={c.k} onClick={() => sfl(a ? null : c.k)} className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium ring-1 ring-inset transition ${a ? `${c.b} ${c.t} ${c.r}` : "bg-white text-slate-500 ring-slate-200 hover:bg-slate-50"}`}><I size={13}/><span className="tabular-nums font-semibold">{c.v}</span>{c.l}</button>
-          );})}
-          {fl && <button onClick={() => sfl(null)} className="flex items-center gap-1 rounded-full px-3 py-1.5 text-sm text-slate-400 hover:text-slate-600"><X size={14}/> Bỏ lọc</button>}
-        </div>
+        {showStaff && <div className="mt-2.5 border-t border-slate-100 pt-2.5"><StaffChart tasks={tasks} active={accF} onPick={setAccF}/></div>}
       </div>
 
-      <StaffChart tasks={tasks}/>
-
-      <div className="mt-6 mb-3 flex items-center justify-between"><h2 className="text-base font-semibold text-slate-900">Checklist</h2><button onClick={() => onAdd(proj.id)} className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"><Plus size={15}/> Thêm việc</button></div>
-
-      <div className="mb-3 flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs">
+      <div className="mb-2 flex flex-wrap items-center gap-2 text-xs">
+        <h2 className="mr-1 text-sm font-semibold text-slate-900">Checklist</h2>
         <span className="flex items-center gap-1 font-medium text-slate-400"><Filter size={12}/> Lọc:</span>
-        <select value={hmF} onChange={e=>setHmF(e.target.value)} className="rounded-md border border-slate-200 px-2 py-1 text-xs focus:border-indigo-400 focus:outline-none"><option value="">Hạng mục: Tất cả</option>{hmOpts.map(o=><option key={o} value={o}>{o}</option>)}</select>
-        <select value={accF} onChange={e=>setAccF(e.target.value)} className="rounded-md border border-slate-200 px-2 py-1 text-xs focus:border-indigo-400 focus:outline-none"><option value="">Acc: Tất cả</option>{accOpts.map(o=><option key={o} value={o}>{o}</option>)}</select>
-        <select value={stF} onChange={e=>setStF(e.target.value)} className="rounded-md border border-slate-200 px-2 py-1 text-xs focus:border-indigo-400 focus:outline-none"><option value="">Trạng thái: Tất cả</option>{STO.map(o=><option key={o} value={o}>{o}</option>)}</select>
-        <span className="flex items-center gap-1 text-slate-400">Deadline:<input type="date" value={dlFrom} onChange={e=>setDlFrom(e.target.value)} className="rounded-md border border-slate-200 px-1.5 py-1 text-xs focus:border-indigo-400 focus:outline-none"/>–<input type="date" value={dlTo} onChange={e=>setDlTo(e.target.value)} className="rounded-md border border-slate-200 px-1.5 py-1 text-xs focus:border-indigo-400 focus:outline-none"/></span>
+        <select value={hmF} onChange={e=>setHmF(e.target.value)} className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs focus:border-indigo-400 focus:outline-none"><option value="">Hạng mục: Tất cả</option>{hmOpts.map(o=><option key={o} value={o}>{o}</option>)}</select>
+        <select value={accF} onChange={e=>setAccF(e.target.value)} className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs focus:border-indigo-400 focus:outline-none"><option value="">Acc: Tất cả</option>{accOpts.map(o=><option key={o} value={o}>{o}</option>)}</select>
+        <select value={stF} onChange={e=>setStF(e.target.value)} className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs focus:border-indigo-400 focus:outline-none"><option value="">Trạng thái: Tất cả</option>{STO.map(o=><option key={o} value={o}>{o}</option>)}</select>
+        <span className="flex items-center gap-1 text-slate-400">Deadline:<input type="date" value={dlFrom} onChange={e=>setDlFrom(e.target.value)} className="rounded-md border border-slate-200 bg-white px-1.5 py-1 text-xs focus:border-indigo-400 focus:outline-none"/>–<input type="date" value={dlTo} onChange={e=>setDlTo(e.target.value)} className="rounded-md border border-slate-200 bg-white px-1.5 py-1 text-xs focus:border-indigo-400 focus:outline-none"/></span>
         {anyFilter && <button onClick={clearFilters} className="flex items-center gap-1 rounded-md px-2 py-1 text-slate-400 hover:text-slate-600"><X size={12}/> Xoá lọc</button>}
+        <button onClick={() => onAdd(proj.id)} className="ml-auto flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-700"><Plus size={14}/> Thêm việc</button>
       </div>
 
-      <div className="max-h-[75vh] overflow-auto rounded-xl border border-slate-300 bg-white shadow-sm">
+      <div className="max-h-[calc(100vh-200px)] min-h-[320px] overflow-auto rounded-xl border border-slate-300 bg-white shadow-sm">
         <table className="w-full min-w-[1100px] table-fixed border-collapse text-xs">
           <colgroup><col className="w-12"/><col className="w-28"/><col/><col className="w-[130px]"/><col className="w-28"/><col className="w-[130px]"/><col className="w-[140px]"/><col className="w-[22%]"/><col className="w-14"/></colgroup>
           <thead className="sticky top-0 z-10"><tr className="bg-slate-100 text-left text-[11px] uppercase tracking-wide text-slate-600 shadow-[inset_0_-2px_0_var(--color-slate-300)] [&>th]:border-r [&>th]:border-slate-200 [&>th:last-child]:border-r-0">
