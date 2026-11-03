@@ -54,12 +54,16 @@ export default function Detail({ proj, tasks, users, myRole, myId, onDelT, onAdd
   const hmOpts = [...new Set(tasks.map((t) => (t.hm || "").trim()).filter(Boolean))].sort();
   const accOpts = [...new Set(tasks.flatMap((t) => (t.acc || "").split(",").map((s) => s.trim()).filter(Boolean)))].sort();
 
+  // Acc/Trạng thái/Deadline also exist on subtasks — a task must stay visible when the
+  // match is on a subtask, or filtering just hides the whole row instead of narrowing it.
+  const hasAcc = (acc, f) => (acc || "").split(",").map((s) => s.trim()).includes(f);
+  const inDlRange = (dl) => dl && (!dlFrom || dl >= dlFrom) && (!dlTo || dl <= dlTo);
+
   let vis = fl ? tasks.filter((t) => hasC(t) && urg(t) === fl) : tasks;
   if (hmF) vis = vis.filter((t) => (t.hm || "").trim() === hmF);
-  if (accF) vis = vis.filter((t) => (t.acc || "").split(",").map((s) => s.trim()).includes(accF));
-  if (stF) vis = vis.filter((t) => t.st === stF);
-  if (dlFrom) vis = vis.filter((t) => t.dl && t.dl >= dlFrom);
-  if (dlTo) vis = vis.filter((t) => t.dl && t.dl <= dlTo);
+  if (accF) vis = vis.filter((t) => hasAcc(t.acc, accF) || (t.subtasks || []).some((s) => hasAcc(s.acc, accF)));
+  if (stF) vis = vis.filter((t) => t.st === stF || (t.subtasks || []).some((s) => s.st === stF));
+  if (dlFrom || dlTo) vis = vis.filter((t) => inDlRange(t.dl) || (t.subtasks || []).some((s) => inDlRange(s.dl)));
   vis = vis.slice().sort((a, b) => TASK_SORTERS[sortKey](a, b) * (sortDir === "asc" ? 1 : -1));
   const anyFilter = hmF || accF || stF || dlFrom || dlTo;
   function clearFilters() { setHmF(""); setAccF(""); setStF(""); setDlFrom(""); setDlTo(""); }
