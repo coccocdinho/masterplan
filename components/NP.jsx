@@ -4,9 +4,10 @@ import { X, Upload } from "lucide-react";
 import Papa from "papaparse";
 import { canAssignOwner } from "../lib/permissions";
 import { parseDate, normSt } from "../lib/parseSheet";
+import { PR, PRO } from "../lib/constants";
 
 export default function NP({ users, myRole, onCreate, onClose }) {
-  const [n, sn] = useState(""), [o, so] = useState(""), [dl, sdl] = useState(""), [fn, sfn] = useState(""), [csv, sc] = useState(null), [er, se] = useState(""), [link, setLink] = useState(true);
+  const [n, sn] = useState(""), [o, so] = useState(""), [dl, sdl] = useState(""), [pr, spr] = useState(PR.N), [fn, sfn] = useState(""), [csv, sc] = useState(null), [er, se] = useState(""), [link, setLink] = useState(true);
 
   function ff(row, cands) {
     for (const k of Object.keys(row)) {
@@ -55,7 +56,12 @@ export default function NP({ users, myRole, onCreate, onClose }) {
                 </select>
               </div>
             )}
-            <div className="w-40"><label className="mb-1 block text-sm font-medium text-slate-700">Deadline <span className="font-normal text-slate-400">(không bắt buộc)</span></label><input type="date" value={dl} onChange={e=>sdl(e.target.value)} className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"/></div>
+            <div className="w-36"><label className="mb-1 block text-sm font-medium text-slate-700">Deadline <span className="font-normal text-slate-400">(không bắt buộc)</span></label><input type="date" value={dl} onChange={e=>sdl(e.target.value)} className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"/></div>
+          </div>
+          <div className="w-40"><label className="mb-1 block text-sm font-medium text-slate-700">Mức độ ưu tiên</label>
+            <select value={pr} onChange={e=>spr(e.target.value)} className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400">
+              {PRO.map(o => <option key={o} value={o}>{o}</option>)}
+            </select>
           </div>
           <div>
             <label className="mb-1 block text-sm font-medium text-slate-700">Nhập đầu việc từ CSV <span className="font-normal text-slate-400">(không bắt buộc)</span></label>
@@ -66,7 +72,7 @@ export default function NP({ users, myRole, onCreate, onClose }) {
         </div>
         <div className="flex justify-end gap-2 border-t border-slate-200 px-5 py-4">
           <button onClick={onClose} className="rounded-lg px-3 py-2 text-sm text-slate-500 hover:bg-slate-100">Huỷ</button>
-          <button onClick={() => { if (n.trim()) onCreate({ name: n.trim(), owner: o, dl, csv: csv || [], linkSheet: link }); }} disabled={!n.trim()} className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-40">Tạo dự án</button>
+          <button onClick={() => { if (n.trim()) onCreate({ name: n.trim(), owner: o, dl, priority: pr, csv: csv || [], linkSheet: link }); }} disabled={!n.trim()} className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-40">Tạo dự án</button>
         </div>
       </div>
     </div>

@@ -6,10 +6,12 @@ import {
   Clock, CalendarClock, Search, ChevronRight,
 } from "lucide-react";
 import { stats, pstats, ownerStats, ownerName, projOverdue, fmtD } from "../lib/util";
+import { canSetPriority } from "../lib/permissions";
 import KPI from "./KPI";
 import StackChart from "./StackChart";
+import PrB from "./PrB";
 
-export default function Overview({ D, onNew, onImp }) {
+export default function Overview({ D, me, onNew, onImp, onSetPriority }) {
   const router = useRouter();
   const [q, sq] = useState(""), [showDone, setSD] = useState(false);
   const s = pstats(D);
@@ -67,6 +69,7 @@ export default function Overview({ D, onNew, onImp }) {
             <th className="w-12 px-4 py-2.5 font-medium">#</th>
             <th className="px-4 py-2.5 font-medium">Dự án</th>
             <th className="w-36 px-4 py-2.5 font-medium">Người chủ trì</th>
+            <th className="w-32 px-4 py-2.5 font-medium">Ưu tiên</th>
             <th className="w-28 px-4 py-2.5 font-medium">Deadline</th>
             <th className="w-32 px-4 py-2.5 font-medium">Tiến độ</th>
             <th className="w-24 px-4 py-2.5 text-right font-medium">Tổng</th>
@@ -76,7 +79,7 @@ export default function Overview({ D, onNew, onImp }) {
             <th className="w-8"/>
           </tr></thead>
           <tbody>
-            {!vis.length && <tr><td colSpan={10} className="px-4 py-8 text-center text-sm text-slate-400">Không tìm thấy dự án khớp.</td></tr>}
+            {!vis.length && <tr><td colSpan={11} className="px-4 py-8 text-center text-sm text-slate-400">Không tìm thấy dự án khớp.</td></tr>}
             {vis.map((p, i) => {
               const x = stats(D.tasks, p.id), all = x.tot > 0 && x.dn === x.tot, pOv = projOverdue(p, D.tasks);
               const pct = x.tot === 0 ? 0 : Math.round((x.dn / x.tot) * 100);
@@ -85,6 +88,9 @@ export default function Overview({ D, onNew, onImp }) {
                   <td className="px-4 py-3.5 tabular-nums font-medium text-slate-500">{i + 1}</td>
                   <td className={`px-4 py-3.5 font-medium ${all ? "text-slate-500" : "text-slate-800"}`}>{p.name}</td>
                   <td className="px-4 py-3.5 text-slate-600">{ownerName(D, p.owner)}</td>
+                  <td className="px-4 py-3.5" onClick={e=>e.stopPropagation()}>
+                    <PrB val={p.priority} onChange={canSetPriority(me.role, me.id, p) ? (v)=>onSetPriority(p.id,v) : undefined}/>
+                  </td>
                   <td className={`px-4 py-3.5 tabular-nums ${pOv ? "font-semibold text-rose-600" : "text-slate-600"}`}>{fmtD(p.dl) || "—"}</td>
                   <td className="px-4 py-3.5">
                     <div className="flex items-center gap-2">

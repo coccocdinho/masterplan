@@ -3,6 +3,6 @@ import { useApp } from "../../../lib/AppStateContext";
 import Overview from "../../../components/Overview";
 
 export default function OverviewPage() {
-  const { D, setShowNP, setShowIM } = useApp();
-  return <Overview D={D} onNew={() => setShowNP(true)} onImp={() => setShowIM(true)}/>;
+  const { D, me, setShowNP, setShowIM, setProjPriority } = useApp();
+  return <Overview D={D} me={me} onNew={() => setShowNP(true)} onImp={() => setShowIM(true)} onSetPriority={setProjPriority}/>;
 }

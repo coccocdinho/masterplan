@@ -31,9 +31,10 @@ export async function DELETE(req, { params }) {
   if (!session) return res;
   const { id } = await params;
 
-  const { data: task } = await db().from("tasks").select("*, projects(name)").eq("id", id).maybeSingle();
+  const { data: task } = await db().from("tasks").select("*, projects(name, owner_id)").eq("id", id).maybeSingle();
   if (!task) return fail("Không tìm thấy đầu việc.", 404);
-  if (!canDelTask({ by: task.created_by }, session.role, session.id)) return fail("Không có quyền xoá đầu việc này.", 403);
+  const proj = task.projects ? { owner: task.projects.owner_id } : null;
+  if (!canDelTask({ by: task.created_by }, proj, session.role, session.id)) return fail("Không có quyền xoá đầu việc này.", 403);
 
   const { error } = await db().from("tasks").delete().eq("id", id);
   if (error) return fail("Không xoá được đầu việc.", 500);

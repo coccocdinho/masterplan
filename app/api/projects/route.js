@@ -3,7 +3,7 @@ import { db } from "../../../lib/db";
 import { requireSession, fail, addLog } from "../../../lib/apiHelpers";
 import { mapProject } from "../../../lib/mapRows";
 import { canAssignOwner } from "../../../lib/permissions";
-import { ST } from "../../../lib/constants";
+import { ST, PRO, PR } from "../../../lib/constants";
 
 export const runtime = "nodejs";
 
@@ -16,14 +16,14 @@ export async function POST(req) {
   const { session, res } = await requireSession();
   if (!session) return res;
 
-  const { name, owner, dl, csv } = await req.json();
+  const { name, owner, dl, priority, csv } = await req.json();
   if (!name?.trim()) return fail("Thiếu tên dự án.");
 
   const ownerId = canAssignOwner(session.role) && owner ? owner : null;
 
   const { data: proj, error: e1 } = await db()
     .from("projects")
-    .insert({ name: name.trim(), owner_id: ownerId, dl: dl || null, created_by: session.id })
+    .insert({ name: name.trim(), owner_id: ownerId, dl: dl || null, priority: PRO.includes(priority) ? priority : PR.N, created_by: session.id })
     .select()
     .single();
   if (e1) return fail("Không tạo được dự án.", 500);

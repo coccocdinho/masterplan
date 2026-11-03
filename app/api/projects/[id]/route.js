@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { db } from "../../../../lib/db";
 import { requireSession, fail, addLog } from "../../../../lib/apiHelpers";
 import { mapProject } from "../../../../lib/mapRows";
-import { canAssignOwner, canDelProj } from "../../../../lib/permissions";
+import { canAssignOwner, canDelProj, canSetPriority } from "../../../../lib/permissions";
+import { PRO } from "../../../../lib/constants";
 
 export const runtime = "nodejs";
 
@@ -21,6 +22,13 @@ export async function PATCH(req, { params }) {
   if ("name" in body) {
     if (!body.name || !body.name.trim()) return fail("Tên dự án không được để trống.");
     patch.name = body.name.trim();
+  }
+  if ("priority" in body) {
+    if (!PRO.includes(body.priority)) return fail("Mức ưu tiên không hợp lệ.");
+    const { data: cur } = await db().from("projects").select("owner_id").eq("id", id).maybeSingle();
+    if (!cur) return fail("Không tìm thấy dự án.", 404);
+    if (!canSetPriority(session.role, session.id, { owner: cur.owner_id })) return fail("Không có quyền đổi mức ưu tiên.", 403);
+    patch.priority = body.priority;
   }
   if (!Object.keys(patch).length) return fail("Không có thay đổi.");
 

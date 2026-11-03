@@ -18,7 +18,7 @@ function ProjectPageInner() {
   const { id } = useParams();
   const searchParams = useSearchParams();
   const hlId = searchParams.get("hl");
-  const { D, me, delTask, delProj, updTask, addTask, addSubtask, updSubtask, delSubtask, setProjOwner, setProjDeadline, setProjName, pushToSheet } = useApp();
+  const { D, me, delTask, delProj, updTask, addTask, addSubtask, updSubtask, delSubtask, setProjOwner, setProjDeadline, setProjName, setProjPriority, pushToSheet } = useApp();
   const [dlg, setDlg] = useState(null);
 
   const proj = D.projects.find((p) => p.id === id);
@@ -30,8 +30,8 @@ function ProjectPageInner() {
 
   function reqDelTask(tid) {
     const t = D.tasks.find((x) => x.id === tid);
-    if (!t || !canDelTask({ by: t.by }, me.role, me.id)) return;
-    const p = D.projects.find((x) => x.id === t.pid);
+    const p = t ? D.projects.find((x) => x.id === t.pid) : null;
+    if (!t || !canDelTask({ by: t.by }, p, me.role, me.id)) return;
     const nm = t.dv || (t.subtasks || []).find((s) => s.text)?.text || "(chưa có tên)";
     setDlg({
       title: "Xoá đầu việc?",
@@ -70,7 +70,7 @@ function ProjectPageInner() {
       <Detail
         proj={proj} tasks={tasks} users={D.users} myRole={me.role} myId={me.id} hlId={hlId}
         onAdd={addTask} onUpd={updTask} onAddSub={addSubtask} onUpdSub={updSubtask} onDelSub={reqDelSub}
-        onDelT={reqDelTask} onDelP={reqDelProj} onSetOwner={setProjOwner} onSetDeadline={setProjDeadline} onSetName={setProjName} onPushSheet={pushToSheet}
+        onDelT={reqDelTask} onDelP={reqDelProj} onSetOwner={setProjOwner} onSetDeadline={setProjDeadline} onSetName={setProjName} onSetPriority={setProjPriority} onPushSheet={pushToSheet}
       />
       <Dlg open={!!dlg} title={dlg?.title} msg={dlg?.msg} okLabel={dlg?.okLabel} onOk={dlg?.onOk} onNo={() => setDlg(null)}/>
     </>

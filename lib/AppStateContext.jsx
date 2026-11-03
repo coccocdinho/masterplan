@@ -100,8 +100,8 @@ export function AppStateProvider({ me, children }) {
   }
 
   // ---- Projects ----
-  async function createProj({ name, owner, dl, csv, linkSheet }) {
-    const p = await apiPost("/api/projects", { name, owner, dl, csv });
+  async function createProj({ name, owner, dl, priority, csv, linkSheet }) {
+    const p = await apiPost("/api/projects", { name, owner, dl, priority, csv });
     setD((d) => ({ ...d, projects: [...d.projects, p] }));
     pushLog("cp", name, csv?.length ? `${csv.length} đầu việc` : "");
     setShowNP(false);
@@ -145,6 +145,15 @@ export function AppStateProvider({ me, children }) {
     setD((d) => ({ ...d, projects: d.projects.map((p) => (p.id === projId ? { ...p, name } : p)) }));
     try {
       await apiPatch(`/api/projects/${projId}`, { name });
+    } catch (e) {
+      reload();
+      throw e;
+    }
+  }
+  async function setProjPriority(projId, priority) {
+    setD((d) => ({ ...d, projects: d.projects.map((p) => (p.id === projId ? { ...p, priority } : p)) }));
+    try {
+      await apiPatch(`/api/projects/${projId}`, { priority });
     } catch (e) {
       reload();
       throw e;
@@ -231,7 +240,7 @@ export function AppStateProvider({ me, children }) {
   const value = {
     D, me, loading, err, reload, logout,
     addUser, resetPw, delUser, changePw,
-    createProj, pushToSheet, importProjs, setProjOwner, setProjDeadline, setProjName, delProj,
+    createProj, pushToSheet, importProjs, setProjOwner, setProjDeadline, setProjName, setProjPriority, delProj,
     addTask, updTask, delTask,
     addSubtask, updSubtask, delSubtask,
     showNP, setShowNP, showIM, setShowIM, showCP, setShowCP,

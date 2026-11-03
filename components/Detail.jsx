@@ -3,14 +3,15 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Trash2, X, Plus, AlertTriangle, Clock, CalendarClock, Filter, Upload, FileSpreadsheet, Users, ChevronUp, ChevronDown } from "lucide-react";
 import { stats, urg, hasC, TASK_SORTERS } from "../lib/util";
-import { canDelProj, canDelTask, canAssignOwner } from "../lib/permissions";
+import { canDelProj, canDelTask, canAssignOwner, canSetPriority } from "../lib/permissions";
 import { STO } from "../lib/constants";
 import Th from "./Th";
 import TaskRow from "./TaskRow";
 import DateInput from "./DateInput";
+import PrB from "./PrB";
 import StaffChart from "./StaffChart";
 
-export default function Detail({ proj, tasks, users, myRole, myId, onDelT, onAdd, onUpd, onAddSub, onUpdSub, onDelSub, onDelP, onSetOwner, onSetDeadline, onSetName, onPushSheet, hlId }) {
+export default function Detail({ proj, tasks, users, myRole, myId, onDelT, onAdd, onUpd, onAddSub, onUpdSub, onDelSub, onDelP, onSetOwner, onSetDeadline, onSetName, onSetPriority, onPushSheet, hlId }) {
   const router = useRouter();
   const rr = useRef({});
   const [fl, sfl] = useState(null);
@@ -79,13 +80,16 @@ export default function Detail({ proj, tasks, users, myRole, myId, onDelT, onAdd
       <button onClick={() => router.push("/overview")} className="mb-2 flex items-center gap-1 text-xs font-medium text-indigo-600 hover:text-indigo-800"><ArrowLeft size={13}/> Tổng quan</button>
       <div className="mb-3 flex items-start justify-between gap-4">
         <div>
-          <input
-            value={nameDraft}
-            onChange={e=>setNameDraft(e.target.value)}
-            onBlur={commitName}
-            onKeyDown={e=>{ if (e.key==="Enter") e.currentTarget.blur(); if (e.key==="Escape") { setNameDraft(proj.name); e.currentTarget.blur(); } }}
-            className="-mx-1 w-full rounded border border-transparent bg-transparent px-1 text-xl font-bold text-slate-900 hover:border-slate-200 focus:border-indigo-400 focus:bg-white focus:outline-none"
-          />
+          <div className="flex items-center gap-2.5">
+            <input
+              value={nameDraft}
+              onChange={e=>setNameDraft(e.target.value)}
+              onBlur={commitName}
+              onKeyDown={e=>{ if (e.key==="Enter") e.currentTarget.blur(); if (e.key==="Escape") { setNameDraft(proj.name); e.currentTarget.blur(); } }}
+              className="-mx-1 min-w-0 flex-1 rounded border border-transparent bg-transparent px-1 text-xl font-bold text-slate-900 hover:border-slate-200 focus:border-indigo-400 focus:bg-white focus:outline-none"
+            />
+            <PrB val={proj.priority} onChange={canSetPriority(myRole, myId, proj) ? (v)=>onSetPriority(proj.id,v) : undefined}/>
+          </div>
           <div className="mt-1 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm text-slate-500">
             <span className="flex items-center gap-1.5">Người phụ trách:
               {canAssignOwner(myRole) ? (
@@ -163,7 +167,7 @@ export default function Detail({ proj, tasks, users, myRole, myId, onDelT, onAdd
           <tbody>
             {!vis.length && <tr><td colSpan={9} className="px-4 py-6 text-center text-xs text-slate-400">{fl||anyFilter ? "Không có việc nào khớp bộ lọc." : 'Chưa có đầu việc nào — bấm "Thêm việc".'}</td></tr>}
             {vis.map((t, i) => (
-              <TaskRow key={t.id} t={t} idx={i+1} hl={t.id===hlId} canDel={canDelTask({by:t.by}, myRole, myId)}
+              <TaskRow key={t.id} t={t} idx={i+1} hl={t.id===hlId} canDel={canDelTask({by:t.by}, proj, myRole, myId)}
                 refCb={el=>rr.current[t.id]=el} onUpd={onUpd} onAddSub={onAddSub} onUpdSub={onUpdSub} onDelSub={onDelSub} onDelT={onDelT}/>
             ))}
           </tbody>
