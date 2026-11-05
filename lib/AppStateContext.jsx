@@ -39,6 +39,33 @@ export function AppStateProvider({ me, children }) {
   }
   const pidOfTask = (tid) => Dref.current.tasks.find((t) => t.id === tid)?.pid;
 
+  // Text fields save a little after you stop typing, one request at a time per field — sending a
+  // PATCH on every keystroke let two in-flight requests finish out of order over the network, so a
+  // stale (shorter) value could land in the DB after a newer, complete one (dropped trailing chars).
+  const pendingPatch = useRef(new Map());  // key -> merged patch not yet sent
+  const sendingKeys = useRef(new Set());   // keys with a request currently in flight
+  const saveTimers = useRef(new Map());    // key -> debounce timer
+  function scheduleSave(key, patch, send) {
+    pendingPatch.current.set(key, { ...(pendingPatch.current.get(key) || {}), ...patch });
+    clearTimeout(saveTimers.current.get(key));
+    saveTimers.current.set(key, setTimeout(() => flushSave(key, send), 500));
+  }
+  async function flushSave(key, send) {
+    if (sendingKeys.current.has(key)) return; // its own completion below re-checks for new pending work
+    const patch = pendingPatch.current.get(key);
+    if (!patch || !Object.keys(patch).length) return;
+    pendingPatch.current.delete(key);
+    sendingKeys.current.add(key);
+    try {
+      await send(patch);
+    } catch {
+      reload();
+    } finally {
+      sendingKeys.current.delete(key);
+      if (pendingPatch.current.get(key)) flushSave(key, send);
+    }
+  }
+
   const reload = useCallback(async () => {
     try {
       const data = await apiGet("/api/state");
@@ -178,15 +205,12 @@ export function AppStateProvider({ me, children }) {
     const t = await apiPost("/api/tasks", { projectId: projId });
     setD((d) => ({ ...d, tasks: [...d.tasks, t] }));
   }
-  async function updTask(tid, patch) {
+  function updTask(tid, patch) {
     setD((d) => ({ ...d, tasks: d.tasks.map((t) => (t.id === tid ? { ...t, ...patch } : t)) }));
-    try {
-      await apiPatch(`/api/tasks/${tid}`, patch);
+    scheduleSave(`task:${tid}`, patch, async (merged) => {
+      await apiPatch(`/api/tasks/${tid}`, merged);
       schedulePush(pidOfTask(tid));
-    } catch (e) {
-      reload();
-      throw e;
-    }
+    });
   }
   async function delTask(tid) {
     const t = D.tasks.find((x) => x.id === tid);
@@ -208,20 +232,17 @@ export function AppStateProvider({ me, children }) {
     const s = await apiPost(`/api/tasks/${tid}/subtasks`);
     setD((d) => ({ ...d, tasks: d.tasks.map((t) => (t.id === tid ? { ...t, subtasks: [...(t.subtasks || []), s] } : t)) }));
   }
-  async function updSubtask(tid, subId, patch) {
+  function updSubtask(tid, subId, patch) {
     setD((d) => ({
       ...d,
       tasks: d.tasks.map((t) =>
         t.id === tid ? { ...t, subtasks: (t.subtasks || []).map((s) => (s.id === subId ? { ...s, ...patch } : s)) } : t
       ),
     }));
-    try {
-      await apiPatch(`/api/tasks/${tid}/subtasks/${subId}`, patch);
+    scheduleSave(`sub:${subId}`, patch, async (merged) => {
+      await apiPatch(`/api/tasks/${tid}/subtasks/${subId}`, merged);
       schedulePush(pidOfTask(tid));
-    } catch (e) {
-      reload();
-      throw e;
-    }
+    });
   }
   async function delSubtask(tid, subId) {
     setD((d) => ({
